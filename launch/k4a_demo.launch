@@ -1,0 +1,58 @@
+<launch>
+  <arg name="onnx_model_path_arg" default="$(find k4a_arm_support)/model/engine_topview_v2.onnx"/>
+  <arg name="model_bounds_arg" default="[0.00, -56.00, 0.00, -80.48, -112.00, -90.82, 80.48, -112.00, -90.82,80.48, 0.00, -90.82,-80.48, 0.00, -90.82,-80.48, -112.00, 90.82,80.48, -112.00, 90.82, 80.48, 0.00, 90.82,-80.48, 0.00, 90.82]"/>
+  <!-- arg name="model_bounds_arg" default="[-4.57, -10.50, -13.33, 5.54, -10.50, -13.33, 5.54, 0.00, -13.33, -4.57, 0.00, -13.33, -4.57, -10.50, 13.73, 5.54, -10.50, 13.73, 5.54, 0.00, 13.73, -4.57, 0.00, 13.73, 0.48, -5.25, 0.20]"/ -->
+  <arg name="tracker_type_arg" default="pose"/>
+  <arg name="mesh_resource_arg" default="package://winml_tracker/testdata/Engine_Block.stl"/>
+  <arg name="winml_fake_arg" default="false"/>
+  <!-- arg name="mesh_rotation_arg" default="[0.0, 1.57, 1.57]"/ -->
+  <!-- arg name="mesh_rotation_arg" default="[-1.5708, 0.0, -1.5708]"/-->
+  <arg name="mesh_rotation_arg" default="[-0.7071, 0, 0.7071]"/>
+  <!-- arg name="mesh_rotation_arg" default="[0.0, 0, 0, 0.0]"/ -->
+  <arg name="mesh_scale_arg" default="[0.001, 0.001, 0.001]"/>
+  <arg name="winml_link_name_arg" default="winml_link"/>
+
+  <arg name="use_arm" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="debug_arg" default="true"/>
+
+  <param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/workcell.xacro"  if="$(arg use_arm)"/>
+  <param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/K4a.xacro" unless="$(arg use_arm)"/>
+
+  <node pkg="winml_tracker" type="winml_tracker_node" name="winml_tracker" output="screen">
+    <param name="onnx_model_path" value="$(arg onnx_model_path_arg)"/>
+    <param name="model_bounds" type="yaml" value="$(arg model_bounds_arg)"/>
+    <param name="tracker_type" value="$(arg tracker_type_arg)"/>
+    <param name="mesh_resource" value="$(arg mesh_resource_arg)"/>
+    <param name="mesh_rotation" type="yaml" value="$(arg mesh_rotation_arg)"/>
+    <param name="mesh_scale" type="yaml" value="$(arg mesh_scale_arg)"/>
+    <param name="winml_fake" value="$(arg winml_fake_arg)"/>
+    <param name="link_name" value="$(arg winml_link_name_arg)"/>
+    <param name="image_topic" value="/cv_camera/image_raw" />
+    <param name="debug" value="$(arg debug_arg)" />
+    <param name="calibration" value="$(find k4a_arm_support)/calibration/ost.yaml" />
+
+    <param name="image_topic" value="/image_publisher/image_raw" />
+  </node>
+  
+  <!-- NOTE: The image properties need to be valid for the camera, or the node will auto select the closest values -->
+  <!-- node pkg="cv_camera" type="cv_camera_node" name="cv_camera" output="screen">
+    <param name="rate" type="double" value="5.0"/>
+    <param name="image_width" type="double" value="640"/>
+    <param name="image_height" type="double" value="480"/>
+  </node -->
+
+  <node pkg="image_publisher" type="image_publisher" name="image_publisher"
+        args="$(find k4a_arm_support)/testdata/Side.jpg" >
+    <param name="flip_horizontal" value="false" />
+    <param name="flip_vertical" value="false" />
+    <param name="frame_id" value="/fake/image_raw" />
+    <param name="publish_rate" value="1" />
+  </node>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" if="$(arg use_arm)">
+    <param name="use_gui" value="$(arg gui)"/>
+  </node>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find k4a_arm_support)/viz/visualize.rviz" if="$(arg gui)"/>
+</launch>
