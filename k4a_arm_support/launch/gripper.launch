@@ -1,0 +1,29 @@
+<launch>
+
+  <arg name="gripper_name" default="gripper" />
+  <arg name="min_gap" default="-0.017" />
+  <arg name="max_gap" default="0.085" /> <!-- meters -->
+  <arg name="min_effort" default="30.0" />
+  <arg name="max_effort" default="100.0" />
+  <arg name="device_name" default="COM3" /> <!-- change this based on your environment. -->
+
+  <node name="robotiq2FGripper" pkg="robotiq_2f_gripper_control"
+    type="Robotiq2FGripperRtuNode.py" args="$(arg device_name)" output="screen"/>
+
+  <!-- this listener node is for debug only, which outputs the status of gripper registers. -->
+  <node name="Robotiq2FGripperStatusListener" pkg="robotiq_2f_gripper_control"
+    type="Robotiq2FGripperStatusListener.py" output="screen"/>
+
+  <node name="robotiq_2f_gripper_action_server" pkg="robotiq_2f_gripper_action_server"
+    type="robotiq_2f_gripper_action_server_node" output="screen">
+    <param name="gripper_name" type="str" value="$(arg gripper_name)" />
+    <param name="min_gap" type="double" value="$(arg min_gap)" />
+    <param name="max_gap" type="double" value="$(arg max_gap)" />
+    <param name="min_effort" type="double" value="$(arg min_effort)" />
+    <param name="max_effort" type="double" value="$(arg max_effort)" />
+
+    <remap from="input" to="/Robotiq2FGripperRobotInput" />
+    <remap from="output" to="/Robotiq2FGripperRobotOutput" />
+  </node>
+
+</launch>

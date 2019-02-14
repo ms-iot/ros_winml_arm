@@ -1,0 +1,4 @@
+[submodule "UWPApp/ros-sharp"]
+	path = UWPApp/ros-sharp
+	url = https://github.com/ms-iot/ros-sharp
+	branch = init_windows

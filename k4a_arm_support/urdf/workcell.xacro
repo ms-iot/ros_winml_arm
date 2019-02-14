@@ -5,12 +5,11 @@
   <xacro:robotiq_c2_model prefix=""/>
 
   <xacro:include filename="$(find ur_description)/urdf/ur3.urdf.xacro"/>
-  <xacro:ur3_robot prefix="" joint_limited="true"/>
+  <xacro:ur3_robot prefix="" joint_limited="false"/>
 
   <link name="world"/>
   <link name="winml_link"/>
   <link name="k4a_link_optical" />
-
 
   <link name="table">
       <visual>
@@ -69,7 +68,7 @@
   <joint name="ee_to_k_mount" type="fixed">
       <parent link="ee_link"/>
       <child link="k_mount"/>
-      <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="0.0 0.0 0.0" rpy="${-pi} 0.0 0.0"/>
   </joint>
 
   <joint name="k_mount_to_k" type="fixed">
