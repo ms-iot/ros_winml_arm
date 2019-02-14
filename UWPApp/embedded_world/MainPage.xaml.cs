@@ -45,6 +45,7 @@ namespace embedded_world
 
         string imageSubId;
         string logSubId;
+        string commandPubId;
         RosSocket rosSocket;
         RosSharp.RosBridgeClient.Protocols.WebSocketUWPProtocol rosWebSocketProtocol;
 
@@ -58,13 +59,15 @@ namespace embedded_world
             rosWebSocketProtocol = new RosSharp.RosBridgeClient.Protocols.WebSocketUWPProtocol(uri);
             rosSocket = new RosSocket(rosWebSocketProtocol);
 
+            commandPubId = rosSocket.Advertise<std_msgs.RosInt32>("goto");
+
             imageSubId = rosSocket.Subscribe<sensor_msgs.Image>("/tracked_objects/image", SubscriptionHandler);
             logSubId = rosSocket.Subscribe<rosgraph.Log>("/rosout", LogSubscriptionHandler);
         }
 
         private void LogSubscriptionHandler(rosgraph.Log message)
         {
-            var ignore = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            var ignore = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 LoggingListBox.Items.Insert(0, new TextBlock() { Text = message.msg});
             });
@@ -110,6 +113,30 @@ namespace embedded_world
 
                 MLView.Source = source;
             });
+        }
+
+        private void Home_Click(object sender, RoutedEventArgs e)
+        {
+            std_msgs.RosInt32 command = new std_msgs.RosInt32(0);
+            rosSocket.Publish(commandPubId, command);
+        }
+
+        private void PickupEngine_Click(object sender, RoutedEventArgs e)
+        {
+            std_msgs.RosInt32 command = new std_msgs.RosInt32(1);
+            rosSocket.Publish(commandPubId, command);
+        }
+
+        private void PlaceEngine_Click(object sender, RoutedEventArgs e)
+        {
+            std_msgs.RosInt32 command = new std_msgs.RosInt32(2);
+            rosSocket.Publish(commandPubId, command);
+        }
+
+        private void Play_Click(object sender, RoutedEventArgs e)
+        {
+            std_msgs.RosInt32 command = new std_msgs.RosInt32(3);
+            rosSocket.Publish(commandPubId, command);
         }
     }
 }
