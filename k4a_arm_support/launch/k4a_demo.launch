@@ -1,0 +1,99 @@
+<launch>
+  <arg name="onnx_model_path_arg" default="$(find k4a_arm_support)/model/engine_topview_v2_opset7.onnx"/>
+  <arg name="model_bounds_arg" default="[0.00, -56.00, 0.00, -80.48, -112.00, -90.82, 80.48, -112.00, -90.82,80.48, 0.00, -90.82,-80.48, 0.00, -90.82,-80.48, -112.00, 90.82,80.48, -112.00, 90.82, 80.48, 0.00, 90.82,-80.48, 0.00, 90.82]"/>
+  <!-- arg name="model_bounds_arg" default="[-4.57, -10.50, -13.33, 5.54, -10.50, -13.33, 5.54, 0.00, -13.33, -4.57, 0.00, -13.33, -4.57, -10.50, 13.73, 5.54, -10.50, 13.73, 5.54, 0.00, 13.73, -4.57, 0.00, 13.73, 0.48, -5.25, 0.20]"/ -->
+  <arg name="tracker_type_arg" default="pose"/>
+  <arg name="mesh_resource_arg" default="package://k4a_arm_support/meshes/Engine_Block.dae"/>
+  <arg name="winml_fake_arg" default="false"/>
+  <!-- arg name="mesh_rotation_arg" default="[0.0, 1.57, 1.57]"/ -->
+  <!-- arg name="mesh_rotation_arg" default="[-1.5708, 0.0, -1.5708]"/-->
+  <arg name="mesh_rotation_arg" default="[0, 0, 1.57]"/>
+  <!-- arg name="mesh_rotation_arg" default="[0.0, 0, 0, 0.0]"/ -->
+  <arg name="mesh_scale_arg" default="[0.001, 0.001, 0.001]"/>
+  <arg name="winml_link_name_arg" default="winml_link"/>
+
+  <arg name="robot_ip" default="10.0.0.103" />
+
+  <arg name="gripper_name" default="gripper" />
+  <arg name="min_gap" default="-0.017" />
+  <arg name="max_gap" default="0.085" /> <!-- meters -->
+  <arg name="min_effort" default="30.0" />
+  <arg name="max_effort" default="100.0" />
+  <arg name="device_name" default="COM3" /> <!-- change this based on your environment. -->
+
+  <arg name="use_arm" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="debug_arg" default="true"/>
+  <arg name="use_moveit" default="true"/>
+  <arg name="use_winml" default="true"/>
+  <arg name="use_camera" default="true"/>
+  <arg name="use_support" default="true"/>
+  <arg name="sim" default="false" />
+  <arg name="use_websocket" default="true" />
+  <arg name="use_tcp" default="false" />
+
+  <param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/workcell.xacro"  if="$(arg use_arm)"/>
+  <param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/K4a.xacro" unless="$(arg use_arm)"/>
+
+  <node pkg="winml_tracker" type="winml_tracker_node" name="winml_tracker" output="screen">
+    <param name="onnx_model_path" value="$(arg onnx_model_path_arg)"/>
+    <param name="model_bounds" type="yaml" value="$(arg model_bounds_arg)"/>
+    <param name="tracker_type" value="$(arg tracker_type_arg)"/>
+    <param name="mesh_scale" type="yaml" value="$(arg mesh_scale_arg)"/>
+    <param name="winml_fake" value="$(arg winml_fake_arg)"/>
+    <param name="link_name" value="$(arg winml_link_name_arg)"/>
+    <param name="image_topic" value="/cv_camera/image_raw" />
+    <param name="debug" value="$(arg debug_arg)" />
+    <param name="calibration" value="$(find k4a_arm_support)/calibration/ost.yaml" if="$(arg use_winml)"/>
+
+    <!-- param name="image_topic" value="/image_publisher/image_raw" / -->
+  </node>
+  
+  <!-- NOTE: The image properties need to be valid for the camera, or the node will auto select the closest values -->
+  <node pkg="cv_camera" type="cv_camera_node" name="cv_camera" output="screen" if="$(arg use_camera)">
+    <param name="rate" type="double" value="5.0"/>
+    <param name="image_width" type="double" value="640"/>
+    <param name="image_height" type="double" value="480"/>
+  </node>
+
+  <node pkg="image_publisher" type="image_publisher" name="image_publisher"
+        args="$(find k4a_arm_support)/testdata/Side.jpg" 
+        unless="$(arg use_camera)">
+    <param name="flip_horizontal" value="false" />
+    <param name="flip_vertical" value="false" />
+    <param name="frame_id" value="/fake/image_raw" />
+    <param name="publish_rate" value="1" />
+  </node>
+
+  <node name="k4a_arm_support" pkg="k4a_arm_support" type="k4a_arm_support_node" if="$(arg use_support)">
+    <param name="gripper_name" type="str" value="$(arg gripper_name)" />
+    <param name="fake" value="false" if="$(arg use_winml)"/>
+    <param name="fake" value="true" unless="$(arg use_winml)"/>
+    <param name="enablePlanning" value="$(arg use_moveit)"/>
+  </node>
+
+  <!-- node name="Robotiq2FGripperStatusListener" pkg="robotiq_2f_gripper_control"
+    type="Robotiq2FGripperStatusListener.py" output="screen"/ -->
+
+  <node name="robotiq2FGripper" pkg="robotiq_2f_gripper_control"
+    type="Robotiq2FGripperRtuNode.py" args="$(arg device_name)" output="screen"/>
+
+  <node name="robotiq_2f_gripper_action_server" pkg="robotiq_2f_gripper_action_server"
+    type="robotiq_2f_gripper_action_server_node" output="screen">
+    <param name="gripper_name" type="str" value="$(arg gripper_name)" />
+    <param name="min_gap" type="double" value="$(arg min_gap)" />
+    <param name="max_gap" type="double" value="$(arg max_gap)" />
+    <param name="min_effort" type="double" value="$(arg min_effort)" />
+    <param name="max_effort" type="double" value="$(arg max_effort)" />
+
+    <remap from="input" to="/Robotiq2FGripperRobotInput" />
+    <remap from="output" to="/Robotiq2FGripperRobotOutput" />
+  </node>  
+
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" if="$(arg use_websocket)"/>
+  <include file="$(find rosbridge_server)/launch/rosbridge_tcp.launch" if="$(arg use_tcp)"/>
+
+  <include file="$(find ur3_k4a-moveit_config)/launch/UR3_with_k4a_execution.launch" if="$(arg use_moveit)">
+    <arg name="robot_ip" value="$(arg robot_ip)" />
+  </include>
+</launch>

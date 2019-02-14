@@ -1,0 +1,28 @@
+<launch>
+  <arg name="gui" default="true"/>
+  <arg name="debug_arg" default="true"/>
+  <arg name="planning_arg" default="true"/>
+  <arg name="use_moveit" default="true"/>
+  
+  <param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/workcell.xacro" />
+  <!-- param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/K4A.xacro" / -->
+
+  <!-- robot_ip: IP-address of the robot's socket-messaging server -->
+  <arg name="robot_ip" default="0" />
+  <arg name="reverse_port" default="50001" doc="Port on which controller listens for position values passed to servoj thread from the driver" />
+  <arg name="min_payload"  default="0.0" doc="lower payload bound for the robot" />
+  <arg name="max_payload"  default="3.0" doc="upper payload bound for the robot" />
+
+  <include file="$(find ur3_k4a-moveit_config)/launch/demo.launch" if="$(arg use_moveit)" />
+ 
+  <!-- node name="k4a_arm_support" pkg="k4a_arm_support" type="k4a_arm_support_node">
+    <param name="fake" value="true"/>
+    <param name="enablePlanning" value="$(arg planning_arg)"/>
+  </node -->
+ 
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" unless="$(arg use_moveit)" />
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" unless="$(arg use_moveit)">
+    <param name="use_gui" value="$(arg gui)"/>
+  </node>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find k4a_arm_support)/viz/visualize.rviz" unless="$(arg use_moveit)"/> 
+</launch>
