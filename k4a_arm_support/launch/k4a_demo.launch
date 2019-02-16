@@ -8,6 +8,7 @@
   <!-- arg name="mesh_rotation_arg" default="[0.0, 1.57, 1.57]"/ -->
   <!-- arg name="mesh_rotation_arg" default="[-1.5708, 0.0, -1.5708]"/-->
   <arg name="mesh_rotation_arg" default="[0, 0, 1.57]"/>
+  <arg name="confidence_arg" default=".5"/>
   <!-- arg name="mesh_rotation_arg" default="[0.0, 0, 0, 0.0]"/ -->
   <arg name="mesh_scale_arg" default="[0.001, 0.001, 0.001]"/>
   <arg name="winml_link_name_arg" default="winml_link"/>
@@ -37,6 +38,7 @@
 
   <node pkg="winml_tracker" type="winml_tracker_node" name="winml_tracker" output="screen">
     <param name="onnx_model_path" value="$(arg onnx_model_path_arg)"/>
+    <param name="confidence" value="$(arg confidence_arg)"/>
     <param name="model_bounds" type="yaml" value="$(arg model_bounds_arg)"/>
     <param name="tracker_type" value="$(arg tracker_type_arg)"/>
     <param name="mesh_scale" type="yaml" value="$(arg mesh_scale_arg)"/>
@@ -51,7 +53,7 @@
   
   <!-- NOTE: The image properties need to be valid for the camera, or the node will auto select the closest values -->
   <node pkg="cv_camera" type="cv_camera_node" name="cv_camera" output="screen" if="$(arg use_camera)">
-    <param name="rate" type="double" value="5.0"/>
+    <param name="rate" type="double" value="15.0"/>
     <param name="image_width" type="double" value="640"/>
     <param name="image_height" type="double" value="480"/>
   </node>

@@ -132,6 +132,16 @@
     <None Include="embedded_world_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Images\button_auto.png" />
+    <Content Include="Images\button_pickup.png" />
+    <Content Include="Images\button_put_down.png" />
+    <Content Include="Images\icon_camera.png" />
+    <Content Include="Images\icon_computer.png" />
+    <Content Include="Images\icon_connected.png" />
+    <Content Include="Images\icon_dots.png" />
+    <Content Include="Images\icon_robot_arm.png" />
+    <Content Include="Images\KinectDevice_black64.jpg" />
+    <Content Include="Images\rosorg-logo1.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -140,6 +150,7 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
+    <Content Include="Images\Windows_10_IoT_Logo.png" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">

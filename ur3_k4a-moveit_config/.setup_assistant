@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: k4a_arm_support
+    relative_path: urdf\workcell.xacro
+    xacro_args: ""
+  SRDF:
+    relative_path: config\UR3_with_k4a.srdf
+  CONFIG:
+    author_name: Lou Amadio
+    author_email: lamadio@microsoft.com
+    generated_timestamp: 1549783120
