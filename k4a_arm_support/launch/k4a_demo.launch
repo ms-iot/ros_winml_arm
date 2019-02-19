@@ -28,6 +28,7 @@
   <arg name="use_moveit" default="true"/>
   <arg name="use_winml" default="true"/>
   <arg name="use_camera" default="true"/>
+  <arg name="use_kinect" default= "false"/>
   <arg name="use_support" default="true"/>
   <arg name="sim" default="false" />
   <arg name="use_websocket" default="true" />
@@ -46,7 +47,7 @@
     <param name="link_name" value="$(arg winml_link_name_arg)"/>
     <param name="image_topic" value="/cv_camera/image_raw" />
     <param name="debug" value="$(arg debug_arg)" />
-    <param name="calibration" value="$(find k4a_arm_support)/calibration/ost.yaml" if="$(arg use_winml)"/>
+    <!-- param name="calibration" value="$(find k4a_arm_support)/calibration/ost.yaml" if="$(arg use_winml)"/ -->
 
     <!-- param name="image_topic" value="/image_publisher/image_raw" / -->
   </node>
@@ -58,6 +59,16 @@
     <param name="image_height" type="double" value="480"/>
   </node>
 
+  <node pkg="k4a_ros_bridge" type="node" name="node"  if="$(arg use_kinect)">
+    <param name="depth_enabled" type="bool" value="true" /> <!-- Enable or disable the depth camera -->
+    <param name="depth_mode" type="string" value="WFOV_2X2BINNED" /> <!-- Set the depth camera mode, which affects FOV, depth range, and camera resolution. See K4A documentation for full details. Valid options: NFOV_UNBINNED, NFOV_2X2BINNED, WFOV_UNBINNED, WFOV_2X2BINNED -->
+    <param name="color_enabled" type="bool" value="false" /> <!-- Enable or disable the color camera -->
+    <param name="color_resolution" type="string" value="720P" /> <!-- Resolution at which to run the color camera. Valid options: 720P, 1080P, 1440P, 1536P, 2160P, 3072P -->
+    <param name="fps" type="int" value="5" /> <!-- FPS to run both cameras at. Valid options are 5, 15, and 30 -->
+    <param name="point_cloud" type="bool" value="false" /> <!-- Generate a point cloud from depth data. Requires depth_enabled -->
+    <param name="rgb_point_cloud" type="bool" value="true" /> <!-- Colorize the point cloud using the RBG camera. Requires color_enabled and depth_enabled -->
+  </node>
+  
   <node pkg="image_publisher" type="image_publisher" name="image_publisher"
         args="$(find k4a_arm_support)/testdata/Side.jpg" 
         unless="$(arg use_camera)">

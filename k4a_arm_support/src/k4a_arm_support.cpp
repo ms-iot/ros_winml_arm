@@ -261,6 +261,8 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
     }
     else if (msg->data == 2)
     {
+        move_group->setNamedTarget("place");
+        move_group->move();
         openGripper();
         return;
     }

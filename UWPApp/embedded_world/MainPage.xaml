@@ -70,6 +70,7 @@
 
         <Grid x:Name="grdPreviewWindow" Background="Gainsboro" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1">
             <Image Name="MLView" Source="{Binding MLView}" Stretch="UniformToFill"/>
+            <TextBlock Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Foreground="{StaticResource SolidBlackBrush}" Text="{Binding Confidence}" FontSize="48" Margin="10,10,10,10" VerticalAlignment="Top" HorizontalAlignment="Center"/>
         </Grid>
 
         <Grid x:Name="grdHeader" Background="{StaticResource DarkTealAccentBrush}" Grid.ColumnSpan="3">

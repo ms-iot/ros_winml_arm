@@ -96,14 +96,18 @@ namespace embedded_world
         public RosConnectionStatus RosStatus { get; set; } = new RosConnectionStatus() { CurrentState = RosConnectionState.Connecting };
         public RosConnectionStatus KinectStatus { get; set; } = new RosConnectionStatus() { CurrentState = RosConnectionState.Connecting };
         public SoftwareBitmapSource MLView { get; set; } = new SoftwareBitmapSource();
+        public string Confidence { get; set; } = "";
 
         private const int MaxLogEntries = 20;
 
         string imageSubId;
         string logSubId;
         string commandPubId;
+        string trackedSubId;
 
         static readonly string uri = "ws://127.0.0.1:9090";
+
+        DispatcherTimer dispatcherTimer = new DispatcherTimer();
 
         RosSocket rosSocket;
         RosSharp.RosBridgeClient.Protocols.WebSocketUWPProtocol rosWebSocketProtocol;
@@ -133,12 +137,25 @@ namespace embedded_world
             rosSocket = new RosSocket(rosWebSocketProtocol);
             imageSubId = rosSocket.Subscribe<sensor_msgs.Image>("/tracked_objects/image", SubscriptionHandler);
             logSubId = rosSocket.Subscribe<rosgraph.Log>("/rosout", LogSubscriptionHandler);
+            trackedSubId = rosSocket.Subscribe<DetectedObjectPose>("/detected_object", DetectedSubscriptionHandler);
             commandPubId = rosSocket.Advertise<std_msgs.RosInt32>("/goto");
+
+            dispatcherTimer.Tick += DispatcherTimer_Tick;
+            dispatcherTimer.Interval = new TimeSpan(0, 0, 3);
+            dispatcherTimer.Start();
 
             UpdateCurrentTask("Connected", "");
 
         }
 
+        private void DispatcherTimer_Tick(object sender, object e)
+        {
+            var ignore = CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                Confidence = String.Format("Object not found");
+                NotifyPropertyChanged("Confidence");
+            });
+        }
 
         public void SetControllerStatus(RosConnectionState newState)
         {
@@ -235,6 +252,18 @@ namespace embedded_world
             var ignore = CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 InsertLogEntry(new RosCSharpLogItem() { LogItemDate = DateTimeOffset.Now, Message = message.msg });
+            });
+        }
+
+        private void DetectedSubscriptionHandler(DetectedObjectPose message)
+        {
+            var ignore = CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                Confidence = String.Format("Confidence: {0:P2}.", message.confidence);
+                dispatcherTimer.Stop();
+                dispatcherTimer.Start();
+                NotifyPropertyChanged("Confidence");
+
             });
         }
 
