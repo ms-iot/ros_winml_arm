@@ -8,6 +8,7 @@
   <!-- arg name="mesh_rotation_arg" default="[0.0, 1.57, 1.57]"/ -->
   <!-- arg name="mesh_rotation_arg" default="[-1.5708, 0.0, -1.5708]"/-->
   <arg name="mesh_rotation_arg" default="[0, 0, 1.57]"/>
+  <arg name="confidence_arg" default=".5"/>
   <!-- arg name="mesh_rotation_arg" default="[0.0, 0, 0, 0.0]"/ -->
   <arg name="mesh_scale_arg" default="[0.001, 0.001, 0.001]"/>
   <arg name="winml_link_name_arg" default="winml_link"/>
@@ -27,6 +28,7 @@
   <arg name="use_moveit" default="true"/>
   <arg name="use_winml" default="true"/>
   <arg name="use_camera" default="true"/>
+  <arg name="use_kinect" default= "false"/>
   <arg name="use_support" default="true"/>
   <arg name="sim" default="false" />
   <arg name="use_websocket" default="true" />
@@ -37,6 +39,7 @@
 
   <node pkg="winml_tracker" type="winml_tracker_node" name="winml_tracker" output="screen">
     <param name="onnx_model_path" value="$(arg onnx_model_path_arg)"/>
+    <param name="confidence" value="$(arg confidence_arg)"/>
     <param name="model_bounds" type="yaml" value="$(arg model_bounds_arg)"/>
     <param name="tracker_type" value="$(arg tracker_type_arg)"/>
     <param name="mesh_scale" type="yaml" value="$(arg mesh_scale_arg)"/>
@@ -44,18 +47,28 @@
     <param name="link_name" value="$(arg winml_link_name_arg)"/>
     <param name="image_topic" value="/cv_camera/image_raw" />
     <param name="debug" value="$(arg debug_arg)" />
-    <param name="calibration" value="$(find k4a_arm_support)/calibration/ost.yaml" if="$(arg use_winml)"/>
+    <!-- param name="calibration" value="$(find k4a_arm_support)/calibration/ost.yaml" if="$(arg use_winml)"/ -->
 
     <!-- param name="image_topic" value="/image_publisher/image_raw" / -->
   </node>
   
   <!-- NOTE: The image properties need to be valid for the camera, or the node will auto select the closest values -->
   <node pkg="cv_camera" type="cv_camera_node" name="cv_camera" output="screen" if="$(arg use_camera)">
-    <param name="rate" type="double" value="5.0"/>
+    <param name="rate" type="double" value="15.0"/>
     <param name="image_width" type="double" value="640"/>
     <param name="image_height" type="double" value="480"/>
   </node>
 
+  <node pkg="k4a_ros_bridge" type="node" name="node"  if="$(arg use_kinect)">
+    <param name="depth_enabled" type="bool" value="true" /> <!-- Enable or disable the depth camera -->
+    <param name="depth_mode" type="string" value="WFOV_2X2BINNED" /> <!-- Set the depth camera mode, which affects FOV, depth range, and camera resolution. See K4A documentation for full details. Valid options: NFOV_UNBINNED, NFOV_2X2BINNED, WFOV_UNBINNED, WFOV_2X2BINNED -->
+    <param name="color_enabled" type="bool" value="false" /> <!-- Enable or disable the color camera -->
+    <param name="color_resolution" type="string" value="720P" /> <!-- Resolution at which to run the color camera. Valid options: 720P, 1080P, 1440P, 1536P, 2160P, 3072P -->
+    <param name="fps" type="int" value="5" /> <!-- FPS to run both cameras at. Valid options are 5, 15, and 30 -->
+    <param name="point_cloud" type="bool" value="false" /> <!-- Generate a point cloud from depth data. Requires depth_enabled -->
+    <param name="rgb_point_cloud" type="bool" value="true" /> <!-- Colorize the point cloud using the RBG camera. Requires color_enabled and depth_enabled -->
+  </node>
+  
   <node pkg="image_publisher" type="image_publisher" name="image_publisher"
         args="$(find k4a_arm_support)/testdata/Side.jpg" 
         unless="$(arg use_camera)">

@@ -10,7 +10,7 @@
     RequestedTheme="Dark"
     Loaded="Page_Loaded">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <!-- Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="100"/>
             <RowDefinition Height="*"/>
@@ -46,10 +46,166 @@
             <Image Grid.Row="1" Name="MLView" Stretch="UniformToFill"/>
         </Grid>
         <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Padding="10,10,10,10" >
+            <Button Name="bConnect" Content="Connect" FontSize="48" Margin="10,10,10,10" Click="Connect_Click"/>
             <Button Name="Home" Content="Go to Home" FontSize="48" Margin="10,10,10,10" Click="Home_Click" />
             <Button Name="PickupEngine" Content="Pickup Engine" FontSize="48" Margin="10,10,10,10" Click="PickupEngine_Click" />
             <Button Name="PlaceEngine" Content="Place Engine" FontSize="48" Margin="10,10,10,10" Click="PlaceEngine_Click" />
             <Button Name="Play" Content="Play with Engine" FontSize="48" Margin="10,10,10,10" Click="Play_Click" />
-        </StackPanel>
+        </StackPanel -->
+    <Page.DataContext>
+        <local:RosControllerViewModel/>
+    </Page.DataContext>
+
+    <Grid Background="Black">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="310"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="620"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid x:Name="grdPreviewWindow" Background="Gainsboro" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1">
+            <Image Name="MLView" Source="{Binding MLView}" Stretch="UniformToFill"/>
+            <TextBlock Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Foreground="{StaticResource SolidBlackBrush}" Text="{Binding Confidence}" FontSize="48" Margin="10,10,10,10" VerticalAlignment="Top" HorizontalAlignment="Center"/>
+        </Grid>
+
+        <Grid x:Name="grdHeader" Background="{StaticResource DarkTealAccentBrush}" Grid.ColumnSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="75"/>
+                <ColumnDefinition Width="300"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Image Grid.Row="0" Grid.Column="0" Source="ms-appx:///Images/Windows_10_IoT_Logo.png" Height="45" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Foreground="{StaticResource SolidOffWhiteBrush}" Text="+" HorizontalAlignment="Center" FontSize="48" Margin="0,0,0,0"/>
+            <Image Grid.Row="0" Grid.Column="2" Source="ms-appx:///Images/rosorg-logo1.png" Height="50" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="0" Grid.Column="3" Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Foreground="{StaticResource SolidOffWhiteBrush}" Text="The foundation for Intelligent Edge Robotics" HorizontalAlignment="Right" Margin="0,0,40,0"/>
+        </Grid>
+
+
+        <Grid x:Name="grdStatus"  Background="{StaticResource BackgroundColorBrush}"  Grid.Column="0" Grid.Row="1" Height="340">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="160"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Style="{StaticResource RosPanelHeaderGridStyle}" Grid.Row="0" Grid.ColumnSpan="3">
+                <TextBlock Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Text="Status"/>
+            </Grid>
+
+            <Image Source="ms-appx:///Images/icon_dots.png" Margin="0,0,0,20" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Width="58" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Image Source="ms-appx:///Images/icon_dots.png" Margin="0,0,0,20" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Width="58" Height="10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+            <Image Source="ms-appx:///Images/icon_computer.png" Margin="0,0,0,20" Grid.Row="1" Width="70" Height="49" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Controller" Grid.Row="1"/>
+
+            <Image Source="ms-appx:///Images/icon_robot_arm.png" Margin="0,0,0,20" Grid.Row="1" Grid.Column="1" Width="93" Height="91" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="ROS" Grid.Row="1" Grid.Column="1"/>
+
+            <Image Source="ms-appx:///Images/KinectDevice_black64.jpg" Grid.Row="1" Grid.Column="2" Width="116" Height="111" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="UniformToFill" Margin="0,0,0,0"/>
+            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Azure Kinect DK" Grid.Row="1" Grid.Column="2"/>
+        </Grid>
+
+        <Grid x:Name="grdSelectedTask" Background="{StaticResource BackgroundColorBrush}"  Grid.Column="0" Grid.Row="2" >
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="320"/>
+            </Grid.RowDefinitions>
+            <Grid Style="{StaticResource RosPanelHeaderGridStyle}" Grid.Row="0" Grid.ColumnSpan="3">
+                <TextBlock Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Text="Last Executed Task"/>
+            </Grid>
+            <Border BorderBrush="{StaticResource PanelBorderAccentBrush}" BorderThickness="0,2,0,2" Grid.ColumnSpan="3"/>
+            <StackPanel Orientation="Vertical" Grid.Row="1" Margin="40,20">
+                <TextBlock Style="{StaticResource ROSCurrentTaskHeadingTextBlockStyle}" Text="{Binding CurrentTask.Title}" />
+                <TextBlock Style="{StaticResource ROSCurrentTaskMessageTextBlockStyle}" Text="{Binding CurrentTask.Message}" />
+            </StackPanel>
+
+        </Grid>
+
+        <Grid x:Name="grdActions" Background="{StaticResource BackgroundColorBrush}"  Grid.Column="0" Grid.Row="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Style="{StaticResource RosPanelHeaderGridStyle}" Grid.Row="0" Grid.ColumnSpan="2">
+                <TextBlock Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Text="Actions"/>
+            </Grid>
+
+            <Button Name="btnConnect" Grid.Row="0" Grid.Column="2" Content="Connect" FontSize="24" HorizontalAlignment="Center"/>
+
+            <Border BorderBrush="{StaticResource PanelBorderAccentBrush}" BorderThickness="2,0,2,0" Grid.Column="1" Grid.Row="1"/>
+
+            <Button x:Name="btnHome" Style="{StaticResource ClearButtonStyle}" Grid.Row="1" Grid.Column="0" Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,40">
+                <Grid Width="150" Height="150">
+                    <Ellipse Stroke="{StaticResource DarkBlueAccentBrush}" StrokeThickness="10" />
+                    <Ellipse Fill="{StaticResource LightBlueAccentBrush}" Margin="11" Stroke="{StaticResource SolidWhiteBrush}" StrokeThickness="2"/>
+                    <Ellipse Margin="16">
+                        <Ellipse.Fill>
+                            <ImageBrush ImageSource="ms-appx:///Images//button_auto.png" Stretch="None" AlignmentX="Center" AlignmentY="Center"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                </Grid>
+            </Button>
+            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Home" Grid.Row="1" Grid.Column="0" Margin="0,0,0,40"/>
+
+            <Button x:Name="btnPickUp" Style="{StaticResource ClearButtonStyle}" Grid.Row="1" Grid.Column="1" Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,40">
+                <Grid Width="150" Height="150">
+                    <Ellipse Stroke="{StaticResource DarkBlueAccentBrush}" StrokeThickness="10" />
+                    <Ellipse Fill="{StaticResource LightBlueAccentBrush}" Margin="11" Stroke="{StaticResource SolidWhiteBrush}" StrokeThickness="2"/>
+                    <Ellipse Margin="16">
+                        <Ellipse.Fill>
+                            <ImageBrush ImageSource="ms-appx:///Images//button_pickup.png" Stretch="None" AlignmentX="Center" AlignmentY="Center"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                </Grid>
+            </Button>
+            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Pick Up" Grid.Row="1" Grid.Column="1" Margin="0,0,0,40"/>
+
+            <Button x:Name="btnPutDown" Style="{StaticResource ClearButtonStyle}" Grid.Row="1" Grid.Column="2" Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,40">
+                <Grid Width="150" Height="150">
+                    <Ellipse Stroke="{StaticResource DarkBlueAccentBrush}" StrokeThickness="10" />
+                    <Ellipse Fill="{StaticResource LightBlueAccentBrush}" Margin="11" Stroke="{StaticResource SolidWhiteBrush}" StrokeThickness="2"/>
+                    <Ellipse Margin="16">
+                        <Ellipse.Fill>
+                            <ImageBrush ImageSource="ms-appx:///Images//button_put_down.png" Stretch="None" AlignmentX="Center" AlignmentY="Center"/>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                </Grid>
+            </Button>
+            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Put Down" Grid.Row="1" Grid.Column="2" Margin="0,0,0,40"/>
+
+
+        </Grid>
+
+        <Grid x:Name="grdROSLog" Grid.Column="1" Grid.Row="3">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid Style="{StaticResource RosPanelHeaderGridStyle}" Grid.Row="0" BorderThickness="2,0,0,0">
+                <TextBlock Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Text="ROS Log"/>
+                <Button x:Name="btnClearLog" Style="{StaticResource ClearButtonStyle}" HorizontalAlignment="Right" FontFamily="Segoe MDL2 Assets" Content="" FontSize="28" Foreground="{StaticResource SolidOffWhiteBrush}" Margin="20,0"/>
+            </Grid>
+            <Grid Grid.Row="1" Background="{StaticResource BlueAccentBrush}">
+                <ScrollViewer Padding="2,10">
+                    <ItemsControl ItemsSource="{Binding LogItems}" Padding="0" ItemTemplate="{StaticResource RosCSharpLogItemTemplate}"/>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
     </Grid>
 </Page>

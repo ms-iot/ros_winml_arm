@@ -3,5 +3,214 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:embedded_world">
+    <Application.Resources>
+        <ResourceDictionary>
 
+            <SolidColorBrush x:Key="BorderBrush">#99FFFFFF</SolidColorBrush>
+            <SolidColorBrush x:Key="BrandingHeaderBrush">#FF151318</SolidColorBrush>
+
+            <x:Double x:Key="ContentDialogMaxWidth">1200</x:Double>
+            <x:Double x:Key="ContentDialogMaxHeight">800</x:Double>
+
+            <Color x:Key="CyanAccentColor">#FF3BADC9</Color>
+            <Color x:Key="DarkTealAccentColor">#FF041922</Color>
+            <Color x:Key="BlueAccentColor">#FF002739</Color>
+            <Color x:Key="LightBlueAccentColor">#FF0A3D55</Color>
+            <Color x:Key="DarkBlueAccentColor">#FF001D2A</Color>
+            <Color x:Key="PanelBorderAccentColor">#FF474747</Color>
+
+            <Color x:Key="Gray0Color">#FF1B1D1F</Color>
+            <Color x:Key="Gray1Color">#FFB3B3B3</Color>
+            <Color x:Key="Gray2Color">#FF7C7C7C</Color>
+            <Color x:Key="Gray3Color">#FF4D4D4D</Color>
+            <Color x:Key="Gray4Color">#FF323232</Color>
+
+            <Color x:Key="BackgroundColor">#FF0E0E0E</Color>
+
+            <SolidColorBrush x:Key="BackgroundColorBrush" Color="{StaticResource BackgroundColor}"/>
+
+            <SolidColorBrush x:Key="SolidBlackBrush" Color="Black"/>
+            <SolidColorBrush x:Key="SolidWhiteBrush" Color="White"/>
+            <SolidColorBrush x:Key="SolidOffWhiteBrush" Color="#FFDEDEDE"/>
+
+
+            <!--<SolidColorBrush x:Key="LightGrayBrush" Color="#FFB3B3B3"/>
+            <SolidColorBrush x:Key="PanelBorderBrush" Color="#7F555555"/>
+            <SolidColorBrush x:Key="PanelBackgroundBrush" Color="#FF2B363A"/>
+            <SolidColorBrush x:Key="PanelHeaderBrush" Color="#FF151318"/>-->
+
+            <SolidColorBrush x:Key="CyanAccentBrush" Color="{StaticResource CyanAccentColor}"/>
+            <SolidColorBrush x:Key="DarkTealAccentBrush" Color="{StaticResource DarkTealAccentColor}"/>
+            <SolidColorBrush x:Key="BlueAccentBrush" Color="{StaticResource BlueAccentColor}"/>
+            <SolidColorBrush x:Key="LightBlueAccentBrush" Color="{StaticResource LightBlueAccentColor}"/>
+            <SolidColorBrush x:Key="DarkBlueAccentBrush" Color="{StaticResource DarkBlueAccentColor}"/>
+            <SolidColorBrush x:Key="PanelBorderAccentBrush" Color="{StaticResource PanelBorderAccentColor}"/>
+
+            <SolidColorBrush x:Key="Gray0Brush" Color="{StaticResource Gray0Color}"/>
+            <SolidColorBrush x:Key="Gray1Brush" Color="{StaticResource Gray1Color}"/>
+            <SolidColorBrush x:Key="Gray2Brush" Color="{StaticResource Gray2Color}"/>
+            <SolidColorBrush x:Key="Gray3Brush" Color="{StaticResource Gray3Color}"/>
+            <SolidColorBrush x:Key="Gray4Brush" Color="{StaticResource Gray4Color}"/>
+
+            <AcrylicBrush x:Key="InAppAcrylicBrush"
+                      BackgroundSource="Backdrop"
+                      FallbackColor="Transparent"
+                      TintColor="White"
+                      TintOpacity="0.1" />
+
+            <AcrylicBrush x:Key="InAppDarkAcrylicBrush"
+                      BackgroundSource="Backdrop"
+                      FallbackColor="{ThemeResource SystemAccentColor}"
+                      TintColor="{ThemeResource SystemAccentColor}"
+                      TintOpacity="0.5" />
+
+
+            <Style x:Key="RosPanelHeaderGridStyle" TargetType="Grid">
+                <Setter Property="Background" Value="{StaticResource BackgroundColorBrush}"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+                <Setter Property="VerticalAlignment" Value="Top"/>
+                <Setter Property="Height" Value="60"/>
+                <Setter Property="BorderBrush" Value="{StaticResource PanelBorderAccentBrush}"/>
+                <Setter Property="BorderThickness" Value="0,2,0,2"/>
+            </Style>
+
+            <Style x:Key="ROSPanelHeaderTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource SubheaderTextBlockStyle}">
+                <Setter Property="Foreground" Value="{StaticResource SolidWhiteBrush}"/>
+                <Setter Property="TextLineBounds" Value="Tight"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+                <Setter Property="Margin" Value="40,0,0,0"/>
+                <Setter Property="FontSize" Value="28"/>
+            </Style>
+
+
+            <!-- <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Controller" TextLineBounds="Tight" VerticalAlignment="Bottom" HorizontalAlignment="Center" FontWeight="Normal" Margin="0,0,0,10" Grid.Row="1"/>-->
+            <Style x:Key="ROSComponentHeaderTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource TitleTextBlockStyle}">
+                <Setter Property="TextLineBounds" Value="Tight"/>
+                <Setter Property="VerticalAlignment" Value="Bottom"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+                <Setter Property="Margin" Value="0,0,0,10"/>
+                <Setter Property="Foreground" Value="{StaticResource SolidOffWhiteBrush}"/>
+            </Style>
+
+            <Style x:Key="ROSComponentStatusTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource ROSComponentHeaderTextBlockStyle}">
+                <Setter Property="FontSize" Value="18"/>
+            </Style>
+
+
+            <Style x:Key="ROSCurrentTaskHeadingTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource ROSPanelHeaderTextBlockStyle}">
+                <Setter Property="TextLineBounds" Value="Full"/>
+                <Setter Property="TextWrapping" Value="NoWrap"/>
+                <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                <Setter Property="Margin" Value="0,5"/>
+            </Style>
+
+            <Style x:Key="ROSCurrentTaskMessageTextBlockStyle" TargetType="TextBlock" BasedOn="{StaticResource ROSCurrentTaskHeadingTextBlockStyle}">
+                <Setter Property="Opacity" Value="0.6"/>
+                <Setter Property="TextWrapping" Value="Wrap"/>
+                <Setter Property="MaxLines" Value="2"/>
+            </Style>
+
+
+
+            <DataTemplate x:Key="ConnectionStatusTemplate">
+                <Grid>
+                    <Grid Height="70" Visibility="{Binding ShowConnecting}">
+                        <Ellipse Width="40" Height="40" Fill="{StaticResource Gray2Brush}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <Path Data="M15.294634,20.381976C18.491619,20.381976 20.989631,22.98 20.989631,26.076987 20.989631,29.27401 18.391612,31.771998 15.294634,31.771998 12.197625,31.771998 9.5996384,29.174035 9.5996384,26.076987 9.5996384,22.98 12.197625,20.381976 15.294634,20.381976z M15.294634,12.989025C18.791606,12.989025 21.988622,14.386975 24.286622,16.584975 24.786621,17.084975 24.886596,17.984023 24.286622,18.484025 23.986604,18.782975 23.687623,18.883011 23.287601,18.883011 22.987613,18.883011 22.588626,18.782975 22.388614,18.484025 20.489631,16.685011 17.992628,15.586012 15.194628,15.586012 12.696647,15.586012 10.398648,16.484999 8.5006413,17.984023 7.9016432,18.484025 7.1016568,18.383988 6.6026344,17.784011 6.302647,17.385024 6.4026532,16.484999 7.0016507,15.985975 9.1996445,14.187024 12.197625,12.989025 15.294634,12.989025z M15.294634,6.0949756C20.090616,6.0949756 24.486602,7.7929751 27.983606,10.591012 28.582603,11.089975 28.682609,11.890025 28.183618,12.489024 27.8836,12.789012 27.483606,12.989025 27.18362,12.989025 26.884609,12.989025 26.58459,12.888987 26.284604,12.688975 23.287601,10.291024 19.49061,8.7919994 15.294634,8.7919994 11.59762,8.7919994 8.2006535,9.8909994 5.4036316,11.890025 4.803657,12.289012 3.9046416,12.188975 3.5046481,11.589975 3.1056623,10.989999 3.2056376,10.091012 3.8046355,9.6909872 7.1016568,7.3930112 11.098628,6.0949756 15.294634,6.0949756z M15.294634,0C21.389623,-1.9651998E-07 26.984615,2.097963 31.480607,5.5949751 32.079605,6.0949756 32.17958,6.8939873 31.680589,7.4929868 31.380601,7.7929751 31.080585,7.9929873 30.680591,7.9929873 30.38161,7.9929873 30.081594,7.8930117 29.881612,7.6929995 25.885618,4.5960117 20.889625,2.6980001 15.39464,2.6980001 10.498623,2.6980001 5.9026541,4.1959873 2.2066466,6.7940117 1.5066664,7.1939756 0.70765662,6.9940244 0.20765736,6.3939873 -0.19132849,5.7949878 0.007645742,4.9959756 0.60765075,4.5960117 4.803657,1.6989758 9.8996252,-1.9651998E-07 15.294634,0z" 
+                              Stretch="Uniform" Fill="{StaticResource SolidOffWhiteBrush}" Width="22" Height="22" Margin="0,10,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <TextBlock Style="{StaticResource ROSComponentStatusTextBlockStyle}" Text="connecting"/>
+                    </Grid>
+                    <Grid Height="70" Visibility="{Binding ShowConnected}">
+                        <Ellipse Width="40" Height="40" Fill="{StaticResource CyanAccentBrush}" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <Path Data="M28.166016,0L32,3.8740238 11.496002,19.745 0,7.9879777 4.4200134,4.6370251 12.070007,12.476016z" Stretch="Uniform" 
+                              Fill="{StaticResource SolidBlackBrush}" Width="28" Height="28" Margin="0,12,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <TextBlock Style="{StaticResource ROSComponentStatusTextBlockStyle}" Text="connected"/>
+                    </Grid>
+                    <Grid Height="70" Visibility="{Binding ShowFailed}">
+                        <Ellipse Width="40" Height="40" Fill="Red" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <Path Data="M14.299988,21.399994L17.699951,21.399994 17.699951,24.399994 14.299988,24.399994z M14.799988,6.6000061L17.099976,6.6000061 17.599976,17.5 14.199951,17.5z" 
+                              Stretch="Fill" Fill="{StaticResource SolidBlackBrush}" Width="6" Height="22" Margin="0,8,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <TextBlock Style="{StaticResource ROSComponentStatusTextBlockStyle}" Text="failed"/>
+                    </Grid>
+                </Grid>
+            </DataTemplate>
+
+
+            <DataTemplate x:Key="RosCSharpLogItemTemplate">
+                <Grid Margin="0,6">
+                    <TextBlock Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Text="{Binding Message}" FontFamily="Consolas" TextWrapping="Wrap" TextLineBounds="Full" FontSize="18"/>
+                </Grid>
+            </DataTemplate>
+
+
+            <Style x:Key="ClearButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="Transparent"/>
+                <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}"/>
+                <Setter Property="BorderBrush" Value="Transparent"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="0"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="FontFamily" Value="{ThemeResource ContentControlThemeFontFamily}"/>
+                <Setter Property="FontWeight" Value="Normal"/>
+                <Setter Property="FontSize" Value="{ThemeResource ControlContentThemeFontSize}"/>
+                <Setter Property="UseSystemFocusVisuals" Value="False"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Grid x:Name="RootGrid" Background="{TemplateBinding Background}">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal">
+                                            <Storyboard>
+                                                <PointerUpThemeAnimation Storyboard.TargetName="RootGrid"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="PointerOver">
+                                            <Storyboard>
+                                                <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseMediumLowBrush}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseHighBrush}"/>
+                                        </ObjectAnimationUsingKeyFrames>-->
+                                                <PointerUpThemeAnimation Storyboard.TargetName="RootGrid"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Pressed">
+                                            <Storyboard>
+                                                <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background" Storyboard.TargetName="RootGrid">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlBackgroundBaseMediumLowBrush}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="BorderBrush" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightTransparentBrush}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Foreground" Storyboard.TargetName="ContentPresenter">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{ThemeResource SystemControlHighlightBaseHighBrush}"/>
+                                        </ObjectAnimationUsingKeyFrames>-->
+                                                <PointerDownThemeAnimation Storyboard.TargetName="RootGrid"/>
+                                            </Storyboard>
+                                        </VisualState>
+                                        <VisualState x:Name="Disabled">
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity" Storyboard.TargetName="RootGrid">
+                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="0.3"/>
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                                <ContentPresenter x:Name="ContentPresenter" AutomationProperties.AccessibilityView="Raw" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" ContentTemplate="{TemplateBinding ContentTemplate}" ContentTransitions="{TemplateBinding ContentTransitions}" Content="{TemplateBinding Content}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Padding="{TemplateBinding Padding}" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+
+        </ResourceDictionary>
+    </Application.Resources>
 </Application>

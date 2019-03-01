@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   interactive_markers
   visualization_msgs
+  winml_msgs
   moveit_ros_planning_interface
 )
 include_directories(${catkin_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS})
@@ -22,7 +23,7 @@ add_definitions(${EIGEN3_DEFINITIONS})
 catkin_package(
   INCLUDE_DIRS include
   LIBRARIES k4a_arm_support
-  CATKIN_DEPENDS geometry_msgs interactive_markers roscpp roslib std_msgs visualization_msgs moveit_ros_planning_interface
+  CATKIN_DEPENDS geometry_msgs interactive_markers roscpp roslib std_msgs visualization_msgs moveit_ros_planning_interface winml_msgs
 )
 
 include_directories(
