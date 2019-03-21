@@ -24,6 +24,7 @@
   <depend>std_msgs</depend>
   <depend>visualization_msgs</depend>
   <depend>eigen</depend>
+  <depend>winml_tracker</depend>
   <depend>winml_msgs</depend>
   <depend>moveit_ros_planning_interface</depend>
   <depend>robotiq_2f_c2_gripper_visualization</depend>
