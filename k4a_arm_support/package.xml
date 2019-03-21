@@ -17,31 +17,18 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>geometry_msgs</build_depend>
-  <build_depend>interactive_markers</build_depend>
-  <build_depend>roscpp</build_depend>
-  <build_depend>roslib</build_depend>
-  <build_depend>std_msgs</build_depend>
-  <build_depend>visualization_msgs</build_depend>
-  <build_depend>eigen</build_depend>
-  <build_depend>winml_msgs</build_depend>
-  <build_export_depend>geometry_msgs</build_export_depend>
-  <build_export_depend>interactive_markers</build_export_depend>
-  <build_export_depend>roscpp</build_export_depend>
-  <build_export_depend>roslib</build_export_depend>
-  <build_export_depend>std_msgs</build_export_depend>
-  <build_export_depend>visualization_msgs</build_export_depend>
-  <build_export_depend>winml_msgs</build_export_depend>
+  <depend>geometry_msgs</depend>
+  <depend>interactive_markers</depend>
+  <depend>roscpp</depend>
+  <depend>roslib</depend>
+  <depend>std_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>eigen</depend>
+  <depend>winml_msgs</depend>
   <depend>moveit_ros_planning_interface</depend>
-
-  <exec_depend>eigen</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
-  <exec_depend>interactive_markers</exec_depend>
-  <exec_depend>roscpp</exec_depend>
-  <exec_depend>roslib</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
-  <exec_depend>visualization_msgs</exec_depend>
-  <exec_depend>winml_msgs</exec_depend>
+  <depend>robotiq_2f_c2_gripper_visualization</depend>
+  <depend>ur3_moveit_config</depend>
+  <depend>rosbridge_server</depend>
 
   <test_depend>rosunit</test_depend>
 </package>
