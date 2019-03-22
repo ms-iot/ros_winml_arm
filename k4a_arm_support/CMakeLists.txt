@@ -10,7 +10,7 @@ add_compile_options(/std:c++latest)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   roslib
-std_msgs
+  std_msgs
   Eigen3 
   geometry_msgs
   interactive_markers

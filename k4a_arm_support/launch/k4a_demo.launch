@@ -103,7 +103,9 @@
     <remap from="output" to="/Robotiq2FGripperRobotOutput" />
   </node>  
 
-  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" if="$(arg use_websocket)"/>
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" if="$(arg use_websocket)">
+    <arg name="address" value="127.0.0.1" />
+  </include>
   <include file="$(find rosbridge_server)/launch/rosbridge_tcp.launch" if="$(arg use_tcp)"/>
 
   <include file="$(find ur3_k4a-moveit_config)/launch/UR3_with_k4a_execution.launch" if="$(arg use_moveit)">

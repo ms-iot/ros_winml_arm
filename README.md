@@ -17,7 +17,7 @@ rosdep update
 rosdep install --from-paths src --ignore-src -r -y
 
 :: now build everything.
-catkin_make_isolated --use-ninja --only-pkg-with-deps k4a_arm_support --merge
+catkin_make_isolated --use-ninja --only-pkg-with-deps ur3_k4a-moveit_config --merge
 ```
 
 ```batch
