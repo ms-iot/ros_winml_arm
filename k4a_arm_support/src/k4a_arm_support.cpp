@@ -17,7 +17,7 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 #include <control_msgs/GripperCommandAction.h>
-#include <winml_tracker/DetectedObjectPose.h>
+#include <winml_msgs/DetectedObjectPose.h>
 
 using namespace std;
 using namespace winrt;
@@ -145,7 +145,7 @@ void closeGripper()
   ac->waitForResult(ros::Duration(30.0));
 }
 
-void detectedObjectCallback(const winml_tracker::DetectedObjectPose::ConstPtr& msg)
+void detectedObjectCallback(const winml_msgs::DetectedObjectPose::ConstPtr& msg)
 {
     if (!listener->waitForTransform ("world", msg->header.frame_id, ros::Time(0), ros::Duration(.1)))
     {

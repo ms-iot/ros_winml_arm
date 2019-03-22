@@ -5,5 +5,5 @@
   <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
     <param name="use_gui" value="$(arg gui)"/>
   </node>
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find k4a_arm_support)/visualize.rviz" if="$(arg gui)"/>
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find k4a_arm_support)/viz/visualize.rviz" if="$(arg gui)"/>
 </launch>
