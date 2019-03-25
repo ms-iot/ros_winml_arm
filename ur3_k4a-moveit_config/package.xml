@@ -29,6 +29,8 @@
   <!-- <run_depend>warehouse_ros_mongo</run_depend> -->
   <build_depend>k4a_arm_support</build_depend>
   <run_depend>k4a_arm_support</run_depend>
+  <build_depend>ur_modern_driver</build_depend>
+  <run_depend>ur_modern_driver</run_depend>
 
 
 </package>

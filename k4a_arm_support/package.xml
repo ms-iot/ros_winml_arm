@@ -30,6 +30,7 @@
   <depend>robotiq_2f_c2_gripper_visualization</depend>
   <depend>ur3_moveit_config</depend>
   <depend>rosbridge_server</depend>
+  <depend>ur_description</depend>
 
   <test_depend>rosunit</test_depend>
 </package>
