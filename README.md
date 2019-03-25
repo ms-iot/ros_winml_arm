@@ -27,6 +27,8 @@ pip install ptvsd
 
 # How to run this demo
 
+> Important notes: `ur_driver.exe` needs to be allowed in the firewall because the UR3 driver modal requires the robot to talk back to the host machine over TCP socket.
+
 ```batch
 :: in the same ROS build window.
 
@@ -46,3 +48,10 @@ choco install windows-sdk-10-version-1809-all
 
 1. Open ".\UWPApp\embedded_world.sln"
 2. Now you can build & debug the App.
+
+# Useful commands
+
+```batch
+:: launch moveit planning for UR3
+roslaunch ur3_k4a-moveit_config UR3_with_k4a_execution.launch robot_ip:=169.254.164.155 -v
+```
