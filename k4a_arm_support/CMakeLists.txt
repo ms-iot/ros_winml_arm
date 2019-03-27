@@ -39,6 +39,6 @@ install(TARGETS ${PROJECT_NAME}_node
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-install(DIRECTORY launch meshes urdf calibration viz
+install(DIRECTORY launch meshes urdf calibration viz log
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )

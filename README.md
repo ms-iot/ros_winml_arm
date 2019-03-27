@@ -23,17 +23,21 @@ catkin_make_isolated --use-ninja --only-pkg-with-deps ur3_k4a-moveit_config --me
 ```batch
 :: additional required modules for rosbridge
 pip install ptvsd
+
+:: use tornado 4.x because newer version is not yet supported by rosbridge
+pip uninstall tornado
+pip install -U tornado==4.5.3
 ```
 
 # How to run this demo
 
-> Important notes: `ur_driver.exe` needs to be allowed in the firewall because the UR3 driver modal requires the robot to talk back to the host machine over TCP socket.
+> Important Notes: `ur_driver.exe` needs to be allowed in the firewall because the UR3 driver modal requires the robot to talk back to the host machine over TCP socket.
 
 ```batch
 :: in the same ROS build window.
 
 devel_isolated\setup.bat
-roslaunch k4a_arm_support k4a_demo.launch
+roslaunch k4a_arm_support k4a_demo.launch robot_ip:=169.254.164.155 -v
 ```
 
 # How to build this demo (UWPApp)

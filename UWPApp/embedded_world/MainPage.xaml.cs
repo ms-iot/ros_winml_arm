@@ -290,9 +290,9 @@ namespace embedded_world
                                 uint xoffset = 0;
                                 for (int x = 0; x < bufferLayout.Stride; x += 4)
                                 {
-                                    dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * y + x + 0] = message.data[message.step * y + xoffset + 2];
+                                    dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * y + x + 0] = message.data[message.step * y + xoffset + 0];
                                     dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * y + x + 1] = message.data[message.step * y + xoffset + 1];
-                                    dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * y + x + 2] = message.data[message.step * y + xoffset + 0];
+                                    dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * y + x + 2] = message.data[message.step * y + xoffset + 2];
                                     dataInBytes[bufferLayout.StartIndex + bufferLayout.Stride * y + x + 3] = (byte)255;
 
                                     xoffset += 3;
