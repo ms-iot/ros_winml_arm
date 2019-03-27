@@ -117,7 +117,7 @@ void initMarker(visualization_msgs::Marker& marker, std::string name, int32_t id
     }
     else
     {
-        marker.mesh_resource = "package://k4a_arm_support/meshes/Engine_Block.dae";
+        marker.mesh_resource = "package://k4a_arm_support/meshes/Engine_Block.stl";
         marker.scale.x = .001;
         marker.scale.y = .001;
         marker.scale.z = .001;

@@ -28,9 +28,12 @@
   <depend>winml_msgs</depend>
   <depend>moveit_ros_planning_interface</depend>
   <depend>robotiq_2f_c2_gripper_visualization</depend>
+  <depend>robotiq_2f_gripper_action_server</depend>
+  <depend>robotiq_2f_gripper_control</depend>
   <depend>ur3_moveit_config</depend>
   <depend>rosbridge_server</depend>
   <depend>ur_description</depend>
+  <depend>cv_camera</depend>
 
   <test_depend>rosunit</test_depend>
 </package>

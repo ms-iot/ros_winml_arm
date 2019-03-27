@@ -18,7 +18,7 @@ namespace embedded_world
         //  geometry_msgs/Point32[9] flatBounds
         //  geometry_msgs/Pose pose
         [JsonIgnore]
-        public const string RosMessageName = "winml_tracker/DetectedObjectPose";
+        public const string RosMessageName = "winml_msgs/DetectedObjectPose";
         public Header header;
         public double confidence;
         public Point[] flatBounds;
