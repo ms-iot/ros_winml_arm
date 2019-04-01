@@ -3,8 +3,9 @@
   <arg name="debug_arg" default="true"/>
   <arg name="planning_arg" default="true"/>
   <arg name="use_moveit" default="true"/>
-  
-  <param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/workcell.xacro" />
+
+  <param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/UR3_K4A.xacro" />
+  <!-- param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/workcell.xacro" / -->
   <!-- param name="robot_description" command="xacro $(find k4a_arm_support)/urdf/K4A.xacro" / -->
 
   <!-- robot_ip: IP-address of the robot's socket-messaging server -->
