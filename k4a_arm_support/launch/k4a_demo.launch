@@ -48,7 +48,7 @@
     <param name="image_topic" value="/cv_camera/image_raw" if="$(arg use_camera)" />
     <param name="image_topic" value="/image_publisher/image_raw" unless="$(arg use_camera)" />
     <param name="debug" value="$(arg debug_arg)" />
-    <param name="calibration" value="$(find k4a_arm_support)/calibration/azure_kinect.yaml" if="$(arg use_camera)"/>
+    <param name="calibration" value="$(find k4a_arm_support)/calibration/lifecam_studio.yaml" if="$(arg use_camera)"/>
 
     <!-- param name="image_topic" value="/image_publisher/image_raw" / -->
   </node>
@@ -56,7 +56,7 @@
   <!-- NOTE: The image properties need to be valid for the camera, or the node will auto select the closest values -->
   <node pkg="cv_camera" type="cv_camera_node" name="cv_camera" output="screen" if="$(arg use_camera)">
     <param name="rate" type="double" value="15.0"/>
-    <param name="camera_info_url" type="string" value="package://k4a_arm_support/calibration/azure_kinect.yaml"/>
+    <param name="camera_info_url" type="string" value="package://k4a_arm_support/calibration/lifecam_studio.yaml"/>
   </node>
 
   <node pkg="k4a_ros_bridge" type="node" name="node"  if="$(arg use_kinect)">
