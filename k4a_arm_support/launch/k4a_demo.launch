@@ -49,8 +49,6 @@
     <param name="image_topic" value="/image_publisher/image_raw" unless="$(arg use_camera)" />
     <param name="debug" value="$(arg debug_arg)" />
     <param name="calibration" value="$(find k4a_arm_support)/calibration/lifecam_studio.yaml" if="$(arg use_camera)"/>
-
-    <!-- param name="image_topic" value="/image_publisher/image_raw" / -->
   </node>
   
   <!-- NOTE: The image properties need to be valid for the camera, or the node will auto select the closest values -->
