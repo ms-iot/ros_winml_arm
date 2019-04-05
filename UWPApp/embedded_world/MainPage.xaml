@@ -69,7 +69,7 @@
         </Grid.ColumnDefinitions>
 
         <Grid x:Name="grdPreviewWindow" Background="Gainsboro" Grid.Row="1" Grid.RowSpan="2" Grid.Column="1">
-            <Image Name="MLView" Source="{Binding MLView}" Stretch="UniformToFill"/>
+            <Image Name="MLView" Source="{Binding MLView}" Stretch="Uniform"/>
             <TextBlock Style="{StaticResource ROSPanelHeaderTextBlockStyle}" Foreground="{StaticResource SolidBlackBrush}" Text="{Binding Confidence}" FontSize="48" Margin="10,10,10,10" VerticalAlignment="Top" HorizontalAlignment="Center"/>
         </Grid>
 
@@ -111,8 +111,8 @@
             <Image Source="ms-appx:///Images/icon_robot_arm.png" Margin="0,0,0,20" Grid.Row="1" Grid.Column="1" Width="93" Height="91" HorizontalAlignment="Center" VerticalAlignment="Center"/>
             <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="ROS" Grid.Row="1" Grid.Column="1"/>
 
-            <Image Source="ms-appx:///Images/KinectDevice_black64.jpg" Grid.Row="1" Grid.Column="2" Width="116" Height="111" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="UniformToFill" Margin="0,0,0,0"/>
-            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Azure Kinect DK" Grid.Row="1" Grid.Column="2"/>
+            <Image Source="/Images/icon_camera.png" Grid.Row="1" Grid.Column="2" Width="116" Height="111" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="None" Margin="0,0,0,0"/>
+            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Camera" Grid.Row="1" Grid.Column="2"/>
         </Grid>
 
         <Grid x:Name="grdSelectedTask" Background="{StaticResource BackgroundColorBrush}"  Grid.Column="0" Grid.Row="2" >
@@ -160,7 +160,7 @@
                     </Ellipse>
                 </Grid>
             </Button>
-            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Home" Grid.Row="1" Grid.Column="0" Margin="0,0,0,40"/>
+            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Scan" Grid.Row="1" Grid.Column="0" Margin="0,0,0,40"/>
 
             <Button x:Name="btnPickUp" Style="{StaticResource ClearButtonStyle}" Grid.Row="1" Grid.Column="1" Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,40">
                 <Grid Width="150" Height="150">

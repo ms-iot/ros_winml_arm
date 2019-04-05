@@ -182,9 +182,9 @@ namespace embedded_world
         {
             if (rosSocket != null)
             {
-                std_msgs.RosInt32 command = new std_msgs.RosInt32(0);
+                std_msgs.RosInt32 command = new std_msgs.RosInt32(4);
                 rosSocket.Publish(commandPubId, command);
-                UpdateCurrentTask("Going Home", "");
+                UpdateCurrentTask("Scanning Objects", "");
             }
         }
 
@@ -263,7 +263,7 @@ namespace embedded_world
                 dispatcherTimer.Stop();
                 dispatcherTimer.Start();
                 NotifyPropertyChanged("Confidence");
-
+                UpdateCurrentTask("Object Found", Confidence);
             });
         }
 

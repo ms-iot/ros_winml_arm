@@ -26,12 +26,36 @@
         <joint name="wrist_3_joint" value="3.1415" />
     </group_state>
     <group_state name="place" group="arm">
-        <joint name="elbow_joint" value="1.946" />
-        <joint name="shoulder_lift_joint" value="-1.8777" />
-        <joint name="shoulder_pan_joint" value="1.57079" />
-        <joint name="wrist_1_joint" value="-1.661" />
-        <joint name="wrist_2_joint" value="-1.5707" />
-        <joint name="wrist_3_joint" value="1.661" />
+        <joint name="shoulder_pan_joint" value="1.570638656616211" />
+        <joint name="shoulder_lift_joint" value="-1.8634913603412073" />
+        <joint name="elbow_joint" value="2.0355043411254883" />
+        <joint name="wrist_1_joint" value="-1.7639744917498987" />
+        <joint name="wrist_2_joint" value="-1.5705769697772425" />
+        <joint name="wrist_3_joint" value="1.6614506244659424" />
+    </group_state>
+    <group_state name="scan1" group="arm">
+        <joint name="shoulder_pan_joint" value="1.5707941055297852" />
+        <joint name="shoulder_lift_joint" value="-0.9223864714251917" />
+        <joint name="elbow_joint" value="0.1412792205810547" />
+        <joint name="wrist_1_joint" value="-0.7409222761737269" />
+        <joint name="wrist_2_joint" value="-1.570625130330221" />
+        <joint name="wrist_3_joint" value="3.141369104385376" />
+    </group_state>
+    <group_state name="scan2" group="arm">
+        <joint name="shoulder_pan_joint" value="1.0367743968963623" />
+        <joint name="shoulder_lift_joint" value="-0.966400448475973" />
+        <joint name="elbow_joint" value="0.24222993850708008" />
+        <joint name="wrist_1_joint" value="-0.8047893683062952" />
+        <joint name="wrist_2_joint" value="-1.595562760029928" />
+        <joint name="wrist_3_joint" value="2.608160972595215" />
+    </group_state>
+    <group_state name="scan3" group="arm">
+        <joint name="elbow_joint" value="0.6373720169067383" />
+        <joint name="shoulder_lift_joint" value="-1.6450002829181116" />
+        <joint name="shoulder_pan_joint" value="1.0613930225372314" />
+        <joint name="wrist_1_joint" value="-0.5208786169635218" />
+        <joint name="wrist_2_joint" value="-1.594302002583639" />
+        <joint name="wrist_3_joint" value="2.6226911544799805" />
     </group_state>
     <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
     <end_effector name="gripper" parent_link="ee_link" group="gripper" parent_group="arm" />

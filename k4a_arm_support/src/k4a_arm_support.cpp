@@ -56,6 +56,8 @@ double correctionY = M_PI / 2.0;
 ros::WallTime lastSeen;
 tf::Transform currentGripPose;
 
+winml_msgs::DetectedObjectPose _detectedObjectMsg;
+
 // yuck
 typedef enum
 {
@@ -153,41 +155,45 @@ void detectedObjectCallback(const winml_msgs::DetectedObjectPose::ConstPtr& msg)
         return;
     }
 
+    if (_detectedObjectMsg.confidence < msg->confidence)
+    {
+        _detectedObjectMsg = *msg;
 
-    tf::Transform enginePose;
-    tf::poseMsgToTF(msg->pose, enginePose);
+        tf::Transform enginePose;
+        tf::poseMsgToTF(msg->pose, enginePose);
 
-    tf::Vector3 gripOffset(xEngineCenter, yEngineCenter, zEngineCenterFirst);
+        tf::Vector3 gripOffset(xEngineCenter, yEngineCenter, zEngineCenterFirst);
 
-    tf::StampedTransform engineToWorld;
-    listener->lookupTransform("world", msg->header.frame_id, ros::Time(0), engineToWorld);
+        tf::StampedTransform engineToWorld;
+        listener->lookupTransform("world", msg->header.frame_id, ros::Time(0), engineToWorld);
 
-    auto engineGripPose = (tf::Transform)engineToWorld * enginePose;
+        auto engineGripPose = (tf::Transform)engineToWorld * enginePose;
 
-    engineGripPose.getOrigin() += gripOffset;
+        engineGripPose.getOrigin() += gripOffset;
 
-    tf::Quaternion modelCorrection = tf::createQuaternionFromRPY(correctionR, correctionP, correctionY);
+        tf::Quaternion modelCorrection = tf::createQuaternionFromRPY(correctionR, correctionP, correctionY);
 
-    auto gripRotationQ = engineGripPose * modelCorrection;
-    gripRotationQ.normalize();
+        auto gripRotationQ = engineGripPose * modelCorrection;
+        gripRotationQ.normalize();
 
-    std::vector<visualization_msgs::Marker> markers;
-    visualization_msgs::Marker gripPose;
-    initMarker(gripPose, "gripPoseX", 0, MarkerInitType::XArrow, engineGripPose.getOrigin().x(), engineGripPose.getOrigin().y(), engineGripPose.getOrigin().z());
-    tf::quaternionTFToMsg(gripRotationQ, gripPose.pose.orientation);
-    markers.push_back(gripPose);
-    initMarker(gripPose, "gripPoseY", 1, MarkerInitType::YArrow, engineGripPose.getOrigin().x(), engineGripPose.getOrigin().y(), engineGripPose.getOrigin().z());
-    tf::quaternionTFToMsg(gripRotationQ, gripPose.pose.orientation);
-    markers.push_back(gripPose);
-    initMarker(gripPose, "gripPoseZ", 2, MarkerInitType::ZArrow, engineGripPose.getOrigin().x(), engineGripPose.getOrigin().y(), engineGripPose.getOrigin().z());
-    tf::quaternionTFToMsg(gripRotationQ, gripPose.pose.orientation);
-    markers.push_back(gripPose);
-    grip_pub.publish(markers);
+        std::vector<visualization_msgs::Marker> markers;
+        visualization_msgs::Marker gripPose;
+        initMarker(gripPose, "gripPoseX", 0, MarkerInitType::XArrow, engineGripPose.getOrigin().x(), engineGripPose.getOrigin().y(), engineGripPose.getOrigin().z());
+        tf::quaternionTFToMsg(gripRotationQ, gripPose.pose.orientation);
+        markers.push_back(gripPose);
+        initMarker(gripPose, "gripPoseY", 1, MarkerInitType::YArrow, engineGripPose.getOrigin().x(), engineGripPose.getOrigin().y(), engineGripPose.getOrigin().z());
+        tf::quaternionTFToMsg(gripRotationQ, gripPose.pose.orientation);
+        markers.push_back(gripPose);
+        initMarker(gripPose, "gripPoseZ", 2, MarkerInitType::ZArrow, engineGripPose.getOrigin().x(), engineGripPose.getOrigin().y(), engineGripPose.getOrigin().z());
+        tf::quaternionTFToMsg(gripRotationQ, gripPose.pose.orientation);
+        markers.push_back(gripPose);
+        grip_pub.publish(markers);
 
-    currentGripPose = engineGripPose;
-    currentGripPose.setRotation(gripRotationQ);
+        currentGripPose = engineGripPose;
+        currentGripPose.setRotation(gripRotationQ);
 
-    lastSeen = ros::WallTime::now();
+        lastSeen = ros::WallTime::now();
+    }
 }
 
 void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
@@ -214,6 +220,9 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
         geometry_msgs::Pose gripPoseMsg;
         tf::poseTFToMsg(currentGripPose, gripPoseMsg);
 
+        move_group->stop();
+
+        move_group->setStartStateToCurrentState();
         move_group->setPoseTarget(gripPoseMsg, "ee_link");
 
         moveit::planning_interface::MoveGroupInterface::Plan gripPlan;
@@ -245,6 +254,7 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
 
         gripPoseMsg.position.z = zEngineCenterSecond;
 
+        move_group->setStartStateToCurrentState();
         planned = move_group->setPoseTarget(gripPoseMsg, "ee_link");
         planned = (move_group->plan(gripPlan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
 
@@ -255,12 +265,16 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
             move_group->move();
             closeGripper();
 
+            move_group->setStartStateToCurrentState();
             move_group->setNamedTarget("home");
             move_group->move();
         }
     }
     else if (msg->data == 2)
     {
+        move_group->stop();
+
+        move_group->setStartStateToCurrentState();
         move_group->setNamedTarget("place");
         move_group->move();
         openGripper();
@@ -270,6 +284,33 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
     {
         // Auto Mode. Exercise for the reader
    
+        move_group->setNamedTarget("home");
+        move_group->move();
+        return;
+    }
+    else if (msg->data == 4)
+    {
+        _detectedObjectMsg = winml_msgs::DetectedObjectPose();
+        move_group->stop();
+        openGripper();
+
+        move_group->setStartStateToCurrentState();
+        move_group->setNamedTarget("home");
+        move_group->move();
+
+        move_group->setStartStateToCurrentState();
+        move_group->setNamedTarget("scan1");
+        move_group->move();
+
+        move_group->setStartStateToCurrentState();
+        move_group->setNamedTarget("scan2");
+        move_group->move();
+
+        move_group->setStartStateToCurrentState();
+        move_group->setNamedTarget("scan3");
+        move_group->move();
+
+        move_group->setStartStateToCurrentState();
         move_group->setNamedTarget("home");
         move_group->move();
         return;

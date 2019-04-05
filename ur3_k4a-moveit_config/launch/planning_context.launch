@@ -6,7 +6,7 @@
   <arg name="robot_description" default="robot_description"/>
 
   <!-- Load universal robot description format (URDF) -->
-  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="xacro  $(find k4a_arm_support)/urdf/UR3_K4A.xacro"/>
+  <param if="$(arg load_robot_description)" name="$(arg robot_description)" command="xacro  $(find k4a_arm_support)/urdf//UR3_Lifecam.xacro"/>
 
   <!-- The semantic description that corresponds to the URDF -->
   <param name="$(arg robot_description)_semantic" textfile="$(find ur3_k4a-moveit_config)/config/UR3_with_k4a.srdf" />
