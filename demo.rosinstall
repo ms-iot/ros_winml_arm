@@ -14,7 +14,7 @@
 - git:
     local-name: robotiq
     uri: https://github.com/ms-iot/robotiq
-    version: init_windows
+    version: init_windows_robotiq_2f_85
 - git:
     local-name: rosauth
     uri: https://github.com/ms-iot/rosauth
