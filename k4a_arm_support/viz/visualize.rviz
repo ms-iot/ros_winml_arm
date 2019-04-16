@@ -213,13 +213,14 @@ Visualization Manager:
       Transport Hint: raw
       Unreliable: false
       Value: true
-    - Class: rviz/MarkerArray
+    - Axes Length: 0.1
+      Axes Radius: 0.02
+      Class: rviz/Pose
       Enabled: true
-      Marker Topic: /grip_pose
-      Name: MarkerArray
-      Namespaces:
-        k4a_arm_support: true
-      Queue Size: 100
+      Name: Pose
+      Shape: Axes
+      Topic: /grip_pose
+      Unreliable: false
       Value: true
   Enabled: true
   Global Options:

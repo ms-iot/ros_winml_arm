@@ -3,6 +3,7 @@
 
 #include <ros/ros.h>
 #include <cmath>
+#include <memory>
 #include <visualization_msgs/MarkerArray.h>
 #include <vcruntime.h>
 #include <windows.h>
@@ -10,6 +11,7 @@
 #include <tf/LinearMath/Quaternion.h>
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
 #include <moveit/move_group_interface/move_group_interface.h>
 #include <actionlib/client/simple_action_client.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
@@ -22,7 +24,6 @@
 using namespace std;
 using namespace winrt;
 
-ros::Publisher tracked_object_pub;
 ros::Publisher grip_pub;
 ros::Subscriber gotoSub;
 ros::Subscriber detectedObjectSub;
@@ -31,8 +32,6 @@ tf::TransformListener* listener;
 moveit::planning_interface::MoveGroupInterface* move_group;
 actionlib::SimpleActionClient<control_msgs::GripperCommandAction>* ac;
 
-
-bool fake = true;
 bool enablePlanning = true;
 
 // Engine Block Cylindars
@@ -44,7 +43,7 @@ double x1 = .0222;
 double x2 = .1380;
 double xEngineCenter = 0;
 double yEngineCenter = 0;
-double zEngineCenterFirst = .3;
+double zEngineCenterFirst = -0.3;
 double zEngineCenterSecond = .28;
 double y = .08;
 
@@ -52,83 +51,7 @@ double correctionR = M_PI;
 double correctionP = 0.0;
 double correctionY = M_PI / 2.0;
 
-
-ros::WallTime lastSeen;
-tf::Transform currentGripPose;
-
-winml_msgs::DetectedObjectPose _detectedObjectMsg;
-
-// yuck
-typedef enum
-{
-    Mesh,
-    XArrow,
-    YArrow,
-    ZArrow
-} MarkerInitType;
-
-void initMarker(visualization_msgs::Marker& marker, std::string name, int32_t id, MarkerInitType type, double x = 0.0, double y = 0.0, double z = 0.0)
-{
-    marker.header.frame_id = "world";
-    marker.text = name;
-    marker.header.stamp = ros::Time();
-    marker.ns = "k4a_arm_support";
-    marker.id = id;
-    marker.type = (type == MarkerInitType::Mesh)?visualization_msgs::Marker::MESH_RESOURCE:visualization_msgs::Marker::ARROW;
-    marker.action = visualization_msgs::Marker::ADD;
-    marker.lifetime = ros::Duration();
-    marker.mesh_use_embedded_materials = true;
-    marker.pose.position.x = x;
-    marker.pose.position.y = y;
-    marker.pose.position.z = z;
-    marker.pose.orientation.x = 0.0;
-    marker.pose.orientation.y = 0.0;
-    marker.pose.orientation.z = 0.0;
-    marker.pose.orientation.w = 1.0;
-
-    marker.points.clear();
-    
-    marker.color.a = 1.0;
-    marker.color.r = 0.0; 	marker.color.g = 0.0;	marker.color.b = 0.0;
-    if (type != MarkerInitType::Mesh)
-    {
-        geometry_msgs::Point pt;
-        marker.points.push_back(pt);
-        switch (type)
-        {
-            case MarkerInitType::ZArrow:
-                marker.color.b = 1.0;
-                pt.z = .1;
-                break;
-
-            case MarkerInitType::YArrow:
-                marker.color.g = 1.0;
-                pt.y = .1;
-                break;
-
-            case MarkerInitType::XArrow:
-                marker.color.r = 1.0;
-                pt.x = .1;
-                break;
-        }
-        marker.points.push_back(pt);
-
-        marker.scale.x = .01;
-        marker.scale.y = .012;
-        marker.scale.z = 0.0;
-    }
-    else
-    {
-        marker.mesh_resource = "package://k4a_arm_support/meshes/Engine_Block.stl";
-        marker.scale.x = .001;
-        marker.scale.y = .001;
-        marker.scale.z = .001;
-        marker.color.r = 0.0;
-        marker.color.g = 0.0;
-        marker.color.b = 1.0;
-    }
-
-}
+geometry_msgs::PoseStamped lastGripPose;
 
 void openGripper()
 {
@@ -155,44 +78,31 @@ void detectedObjectCallback(const winml_msgs::DetectedObjectPose::ConstPtr& msg)
         return;
     }
 
-    if (_detectedObjectMsg.confidence < msg->confidence)
+    tf::Transform enginePose;
+    tf::poseMsgToTF(msg->pose, enginePose);
+
+    tf::Vector3 gripOffset(xEngineCenter, yEngineCenter, zEngineCenterFirst);
+
+    tf::StampedTransform engineToWorld;
+    listener->lookupTransform("world", msg->header.frame_id, ros::Time(0), engineToWorld);
+
+    auto engineGripPose = enginePose;
+
+    engineGripPose.getOrigin() += gripOffset;
+    engineGripPose = (tf::Transform)engineToWorld * engineGripPose;
+
+    tf::Quaternion modelCorrection = tf::createQuaternionFromRPY(correctionR, correctionP, correctionY);
+    auto gripRotationQ = engineGripPose * modelCorrection;
+    gripRotationQ.normalize();
+    engineGripPose.setRotation(gripRotationQ);
+
+    tf::Stamped<tf::Pose> grasp_tf_pose(engineGripPose, ros::Time::now(), "world");
     {
-        _detectedObjectMsg = *msg;
+        geometry_msgs::PoseStamped msg;
+        tf::poseStampedTFToMsg(grasp_tf_pose, msg);
 
-        tf::Transform enginePose;
-        tf::poseMsgToTF(msg->pose, enginePose);
-
-        tf::Vector3 gripOffset(xEngineCenter, yEngineCenter, zEngineCenterFirst);
-
-        tf::StampedTransform engineToWorld;
-        listener->lookupTransform("world", msg->header.frame_id, ros::Time(0), engineToWorld);
-
-        auto engineGripPose = (tf::Transform)engineToWorld * enginePose;
-
-        engineGripPose.getOrigin() += gripOffset;
-
-        tf::Quaternion modelCorrection = tf::createQuaternionFromRPY(correctionR, correctionP, correctionY);
-
-        auto gripRotationQ = engineGripPose * modelCorrection;
-        gripRotationQ.normalize();
-
-        std::vector<visualization_msgs::Marker> markers;
-        visualization_msgs::Marker gripPose;
-        initMarker(gripPose, "gripPoseX", 0, MarkerInitType::XArrow, engineGripPose.getOrigin().x(), engineGripPose.getOrigin().y(), engineGripPose.getOrigin().z());
-        tf::quaternionTFToMsg(gripRotationQ, gripPose.pose.orientation);
-        markers.push_back(gripPose);
-        initMarker(gripPose, "gripPoseY", 1, MarkerInitType::YArrow, engineGripPose.getOrigin().x(), engineGripPose.getOrigin().y(), engineGripPose.getOrigin().z());
-        tf::quaternionTFToMsg(gripRotationQ, gripPose.pose.orientation);
-        markers.push_back(gripPose);
-        initMarker(gripPose, "gripPoseZ", 2, MarkerInitType::ZArrow, engineGripPose.getOrigin().x(), engineGripPose.getOrigin().y(), engineGripPose.getOrigin().z());
-        tf::quaternionTFToMsg(gripRotationQ, gripPose.pose.orientation);
-        markers.push_back(gripPose);
-        grip_pub.publish(markers);
-
-        currentGripPose = engineGripPose;
-        currentGripPose.setRotation(gripRotationQ);
-
-        lastSeen = ros::WallTime::now();
+        lastGripPose = msg;
+        grip_pub.publish(msg);
     }
 }
 
@@ -207,20 +117,24 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
     }
     else if (msg->data == 1)
     {
-        // Pickup Mode
-        if (ros::WallTime::now() > (lastSeen + ros::WallDuration(30, 0)))
+        ros::Duration diff = ros::Time::now() - lastGripPose.header.stamp;
+        if (diff > ros::Duration(30.0))
         {
-            // Didn't see soon enough
+            ROS_INFO_NAMED("k4a", "ignore grip pose than 30s old");
             return;
         }
+
+        auto gripPoseMsg = lastGripPose;
 
         move_group->setPoseReferenceFrame("world");
         move_group->setGoalTolerance(.005);
 
-        geometry_msgs::Pose gripPoseMsg;
-        tf::poseTFToMsg(currentGripPose, gripPoseMsg);
-
         move_group->stop();
+
+        openGripper();
+        move_group->setStartStateToCurrentState();
+        move_group->setNamedTarget("home");
+        move_group->move();
 
         move_group->setStartStateToCurrentState();
         move_group->setPoseTarget(gripPoseMsg, "ee_link");
@@ -231,6 +145,7 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
 
         ROS_INFO_NAMED("k4a", "plan 1 (pose goal) %s", planned ? "" : "FAILED");
 
+#if 0
         if (!planned)
         {
             // ends up in collision with self, so flip 180. If that doesn't work, bail.
@@ -246,13 +161,14 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
 
             ROS_INFO_NAMED("k4a", "plan 2 (pose goal) %s", planned ? "" : "FAILED");
         }
+#endif
 
         if (planned)
         {
             move_group->move();
         }
 
-        gripPoseMsg.position.z = zEngineCenterSecond;
+        gripPoseMsg.pose.position.z = zEngineCenterSecond;
 
         move_group->setStartStateToCurrentState();
         planned = move_group->setPoseTarget(gripPoseMsg, "ee_link");
@@ -290,7 +206,6 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
     }
     else if (msg->data == 4)
     {
-        _detectedObjectMsg = winml_msgs::DetectedObjectPose();
         move_group->stop();
         openGripper();
 
@@ -331,27 +246,23 @@ int main(int argc, char **argv)
 
     ros::NodeHandle nh;
     ros::NodeHandle nhPrivate("~");
-    ros::Timer timer;
     ros::AsyncSpinner async_spinner (2);
     async_spinner.start();
 
-    lastSeen = ros::WallTime::now() - ros::WallDuration(60);	// last seen while ago
-
     std::string gripper_name;
-      nhPrivate.param<std::string>("gripper_name", gripper_name, "gripper");
+    nhPrivate.param<std::string>("gripper_name", gripper_name, "gripper");
     nhPrivate.param<bool>("enablePlanning", enablePlanning, true);
 
 
     // create the action client
-      // true causes the client to spin its own thread
-      ac = new actionlib::SimpleActionClient<control_msgs::GripperCommandAction>(gripper_name, true);
+    // true causes the client to spin its own thread
+    ac = new actionlib::SimpleActionClient<control_msgs::GripperCommandAction>(gripper_name, true);
     ac->waitForServer(); //will wait for infinite time
 
     listener = new tf::TransformListener();
 
-    grip_pub = nh.advertise<visualization_msgs::MarkerArray>("grip_pose", 1);
+    grip_pub = nh.advertise<geometry_msgs::PoseStamped>("grip_pose", 1);
     detectedObjectSub = nh.subscribe("detected_object", 1, detectedObjectCallback);
-
     gotoSub = nh.subscribe("goto", 1, gotoCallback);
 
     if (enablePlanning)
@@ -366,6 +277,28 @@ int main(int argc, char **argv)
         move_group->setNamedTarget("home");
         move_group->move();
         */
+    }
+
+    tf::TransformBroadcaster br;
+    tf::StampedTransform correction;
+    correction.setIdentity();
+    ros::Rate loop_rate(100);
+    while (ros::ok())
+    {
+        try
+        {
+            listener->lookupTransform("world", "checkerboard", ros::Time(0), correction);
+            double yaw, pitch, roll;
+            correction.getBasis().getRPY(roll, pitch, yaw);
+            correction.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
+            correction.setRotation(tf::createQuaternionFromRPY(-pitch, -roll, 0.0));
+        }
+        catch (tf::TransformException ex)
+        {
+            //
+        }
+        br.sendTransform(tf::StampedTransform(correction, ros::Time::now(), "winml_link", "winml2_link"));
+        loop_rate.sleep();
     }
 
     ros::waitForShutdown();

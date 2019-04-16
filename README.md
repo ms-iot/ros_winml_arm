@@ -58,4 +58,7 @@ choco install windows-sdk-10-version-1809-all
 ```batch
 :: launch moveit planning for UR3
 roslaunch ur3_k4a-moveit_config UR3_with_k4a_execution.launch robot_ip:=169.254.164.155 -v
+
+:: pickup engine block
+rostopic pub --once /goto std_msgs/Int32 1
 ```

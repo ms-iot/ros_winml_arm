@@ -369,13 +369,26 @@ Visualization Manager:
         Show Robot Collision: false
         Show Robot Visual: true
       Value: true
-    - Class: rviz/MarkerArray
+    - Axes Length: 0.1
+      Axes Radius: 0.02
+      Class: rviz/Pose
       Enabled: true
-      Marker Topic: /grip_pose
-      Name: MarkerArray
-      Namespaces:
-        {}
-      Queue Size: 100
+      Name: Pose
+      Shape: Axes
+      Topic: /grip_pose
+      Unreliable: false
+      Value: true
+    - Class: rviz/Image
+      Enabled: true
+      Image Topic: /tracked_objects/image
+      Max Value: 1
+      Median window: 5
+      Min Value: 0
+      Name: Image
+      Normalize Range: true
+      Queue Size: 2
+      Transport Hint: raw
+      Unreliable: false
       Value: true
     - Class: rviz/TF
       Enabled: true

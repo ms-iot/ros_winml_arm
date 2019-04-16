@@ -1,7 +1,7 @@
 <launch>
   <env name="ROSCONSOLE_CONFIG_FILE"
        value="$(find k4a_arm_support)/log/rosconsole.conf"/>
-  <arg name="onnx_model_path_arg" default="$(find k4a_arm_support)/model/engine_topview_v2_opset7.onnx"/>
+  <arg name="onnx_model_path_arg" default="$(find k4a_arm_support)/model/engine_topview_v3.onnx"/>
   <arg name="model_bounds_arg" default="[0.00, -56.00, 0.00, -80.48, -112.00, -90.82, 80.48, -112.00, -90.82,80.48, 0.00, -90.82,-80.48, 0.00, -90.82,-80.48, -112.00, 90.82,80.48, -112.00, 90.82, 80.48, 0.00, 90.82,-80.48, 0.00, 90.82]"/>
   <!-- arg name="model_bounds_arg" default="[0.00, -0.056, 0.00, -0.08048, -0.112, -0.09082, 0.08048, -0.112, -0.09082,0.08048, 0.00, -0.09082,-0.08048, 0.00, -0.09082,-0.08048, -0.112, 0.09082,0.08048, -0.112, 0.09082, 0.08048, 0.00, 0.09082,-0.08048, 0.00, 0.09082]"/ -->
   <!-- arg name="model_bounds_arg" default="[-4.57, -10.50, -13.33, 5.54, -10.50, -13.33, 5.54, 0.00, -13.33, -4.57, 0.00, -13.33, -4.57, -10.50, 13.73, 5.54, -10.50, 13.73, 5.54, 0.00, 13.73, -4.57, 0.00, 13.73, 0.48, -5.25, 0.20]"/ -->
@@ -11,10 +11,10 @@
   <!-- arg name="mesh_rotation_arg" default="[0.0, 1.57, 1.57]"/ -->
   <!-- arg name="mesh_rotation_arg" default="[-1.5708, 0.0, -1.5708]"/-->
   <arg name="mesh_rotation_arg" default="[0, 0, 1.57]"/>
-  <arg name="confidence_arg" default=".5"/>
+  <arg name="confidence_arg" default=".6"/>
   <!-- arg name="mesh_rotation_arg" default="[0.0, 0, 0, 0.0]"/ -->
   <arg name="mesh_scale_arg" default="[0.001, 0.001, 0.001]"/>
-  <arg name="winml_link_name_arg" default="winml_link"/>
+  <arg name="winml_link_name_arg" default="winml2_link"/>
 
   <arg name="robot_ip" default="10.0.0.103" />
 
@@ -45,7 +45,7 @@
     <param name="mesh_scale" type="yaml" value="$(arg mesh_scale_arg)"/>
     <param name="winml_fake" value="$(arg winml_fake_arg)"/>
     <param name="link_name" value="$(arg winml_link_name_arg)"/>
-    <param name="image_topic" value="/cv_camera/image_raw" if="$(arg use_camera)" />
+    <param name="image_topic" value="/cv_camera/image_rect_color" if="$(arg use_camera)" />
     <param name="image_topic" value="/image_publisher/image_raw" unless="$(arg use_camera)" />
     <param name="debug" value="$(arg debug_arg)" />
     <param name="calibration" value="$(find k4a_arm_support)/calibration/lifecam_studio.yaml" if="$(arg use_camera)"/>
@@ -55,6 +55,18 @@
   <node pkg="cv_camera" type="cv_camera_node" name="cv_camera" output="screen" if="$(arg use_camera)">
     <param name="rate" type="double" value="15.0"/>
     <param name="camera_info_url" type="string" value="package://k4a_arm_support/calibration/lifecam_studio.yaml"/>
+    <param name="frame_id" type="string" value="winml_link"/>
+  </node>
+
+  <group ns="cv_camera">
+    <node pkg="image_proc" type="image_proc" name="image_proc" output="screen"/>
+  </group>
+
+  <node name="tuw_checkerboard_node" pkg="tuw_checkerboard" type="tuw_checkerboard_node" output="screen">
+    <remap from="image" to="/cv_camera/image_rect" />
+    <param name="checkerboard_columns" value="8" type="int" />
+    <param name="checkerboard_rows" value="6" type="int" />
+    <param name="checkerboard_square_size" value="0.025" type="double" />
   </node>
 
   <node pkg="k4a_ros_bridge" type="node" name="node"  if="$(arg use_kinect)">
@@ -102,7 +114,7 @@
   </node>  
 
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" if="$(arg use_websocket)">
-    <arg name="address" value="127.0.0.1" />
+    <arg name="address" value="10.137.185.21" />
   </include>
   <include file="$(find rosbridge_server)/launch/rosbridge_tcp.launch" if="$(arg use_tcp)"/>
 
