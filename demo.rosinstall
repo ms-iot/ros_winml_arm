@@ -2,7 +2,7 @@
 - git:
     local-name: ros_winml_arm
     uri: https://github.com/ms-iot/ros_winml_arm
-    version: fix2
+    version: build2019_demo
 - git:
     local-name: cv_camera
     uri: https://github.com/ms-iot/cv_camera
