@@ -38,4 +38,4 @@
 - git:
     local-name: tuw_marker_detection
     uri: https://github.com/seanyen/tuw_marker_detection
-    version: melodic
+    version: melodic_demo

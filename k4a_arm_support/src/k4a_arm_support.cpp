@@ -53,8 +53,13 @@ double correctionR = M_PI;
 double correctionP = 0.0;
 double correctionY = M_PI / 2.0;
 
+double aruco_grip_end_offset = -0.045;
+
 geometry_msgs::PoseStamped lastGripPose;
 double zOffset = 0.28;
+
+double moveit_group_planning_time = 10.0;
+double moveit_group_goal_tolerance = 0.005;
 
 geometry_msgs::PoseStamped lastPlacePose;
 
@@ -64,15 +69,16 @@ void openGripper()
   goal.command.position = 0.08;
   goal.command.max_effort = 30.0;
   ac->sendGoal(goal);
+  ac->waitForResult(ros::Duration(10.0));
 }
 
 void closeGripper()
 {
   control_msgs::GripperCommandGoal goal;
   goal.command.position = -0.017;
-  goal.command.max_effort = 50.0;
+  goal.command.max_effort = 40.0;
   ac->sendGoal(goal);
-  ac->waitForResult(ros::Duration(30.0));
+  ac->waitForResult(ros::Duration(10.0));
 }
 
 void detectedObjectCallback(const winml_msgs::DetectedObjectPose::ConstPtr& msg)
@@ -127,7 +133,7 @@ void arucoDetectedObjectCallback(const marker_msgs::MarkerDetection::ConstPtr& m
 
     char buffer[50] = {};
     auto id = msg->markers[0].ids[0];
-    sprintf(buffer, "t%d_c", id);
+    sprintf(buffer, "t%d", id);
 
     if (!listener->waitForTransform ("world", buffer, ros::Time(0), ros::Duration(.1)))
     {
@@ -160,7 +166,7 @@ void arucoDetectedObjectCallback(const marker_msgs::MarkerDetection::ConstPtr& m
         tf::poseStampedTFToMsg(grasp_tf_pose, msg);
 
         lastGripPose = msg;
-        zOffset = -0.04;
+        zOffset = aruco_grip_end_offset;
         grip_pub.publish(msg);
     }
 
@@ -185,9 +191,9 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
             return;
         }
 
-        move_group->setPlanningTime(10.0);
+        move_group->setPlanningTime(moveit_group_planning_time);
         move_group->setPoseReferenceFrame("world");
-        move_group->setGoalTolerance(.005);
+        move_group->setGoalTolerance(moveit_group_goal_tolerance);
 
         move_group->stop();
 
@@ -196,7 +202,7 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
         move_group->setNamedTarget("home");
         move_group->move();
 
-        Sleep(500);
+        ros::Duration(0.5).sleep();
 
         auto gripPoseMsg = lastGripPose;
 
@@ -250,9 +256,9 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
 
         auto placePose = lastPlacePose;
 
-        move_group->setPlanningTime(20.0);
+        move_group->setPlanningTime(moveit_group_planning_time);
         move_group->setPoseReferenceFrame("world");
-        move_group->setGoalTolerance(.005);
+        move_group->setGoalTolerance(moveit_group_goal_tolerance);
 
         move_group->stop();
 
@@ -308,6 +314,9 @@ int main(int argc, char **argv)
     std::string gripper_name;
     nhPrivate.param<std::string>("gripper_name", gripper_name, "gripper");
     nhPrivate.param<bool>("enablePlanning", enablePlanning, true);
+    nhPrivate.param<double>("aruco_grip_end_offset", aruco_grip_end_offset, -0.045);
+    nhPrivate.param<double>("planning_time", moveit_group_planning_time, 10.0);
+    nhPrivate.param<double>("goal_tolerance", moveit_group_goal_tolerance, 0.005);
 
 
     // create the action client
@@ -348,7 +357,7 @@ int main(int argc, char **argv)
             double yaw, pitch, roll;
             correction.getBasis().getRPY(roll, pitch, yaw);
             correction.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
-            correction.setRotation(tf::createQuaternionFromRPY(-pitch, -roll, 0.0));
+            correction.setRotation(tf::createQuaternionFromRPY(pitch, roll, 0.0));
         }
         catch (tf::TransformException ex)
         {

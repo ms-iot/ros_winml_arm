@@ -69,6 +69,7 @@
     <param name="checkerboard_columns" value="8" type="int" />
     <param name="checkerboard_rows" value="6" type="int" />
     <param name="checkerboard_square_size" value="0.025" type="double" />
+    <param name="show_camera_image" value="false"/>
   </node>
 
   <node pkg="tuw_aruco" type="aruco_node" name="arMarkerAruco" output="screen">
@@ -140,11 +141,4 @@
   <include file="$(find ur3_k4a-moveit_config)/launch/UR3_with_k4a_execution.launch" if="$(arg use_moveit)">
     <arg name="robot_ip" value="$(arg robot_ip)" />
   </include>
-
-  <node pkg="tf" type="static_transform_publisher" name="t0_broadcaster" args="-0.015 -0.015 0 0 0 0 t0 t0_c 100" />
-  <node pkg="tf" type="static_transform_publisher" name="t1_broadcaster" args="-0.015 -0.015 0 0 0 0 t1 t1_c 100" />
-  <node pkg="tf" type="static_transform_publisher" name="t2_broadcaster" args="-0.015 -0.015 0 0 0 0 t2 t2_c 100" />
-  <node pkg="tf" type="static_transform_publisher" name="t3_broadcaster" args="-0.015 -0.015 0 0 0 0 t3 t3_c 100" />
-  <node pkg="tf" type="static_transform_publisher" name="t4_broadcaster" args="-0.015 -0.015 0 0 0 0 t4 t4_c 100" />
-  <node pkg="tf" type="static_transform_publisher" name="t5_broadcaster" args="-0.015 -0.015 0 0 0 0 t5 t5_c 100" />
 </launch>
