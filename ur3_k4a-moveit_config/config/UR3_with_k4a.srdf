@@ -209,4 +209,5 @@
     <disable_collisions link1="wall2" link2="wall3" reason="Adjacent" />
     <disable_collisions link1="wall2" link2="wall4" reason="Adjacent" />
     <disable_collisions link1="wall3" link2="wall4" reason="Adjacent" />
+    <disable_collisions link1="robot_mount" link2="base_link" reason="Adjacent" />
 </robot>
