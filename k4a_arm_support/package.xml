@@ -36,6 +36,7 @@
   <depend>ur_description</depend>
   <depend>cv_camera</depend>
   <depend>tuw_checkerboard</depend>
+  <depend>tuw_aruco</depend>
 
   <test_depend>rosunit</test_depend>
 </package>

@@ -3,6 +3,7 @@
        value="$(find k4a_arm_support)/log/rosconsole.conf"/>
   <arg name="onnx_model_path_arg" default="$(find k4a_arm_support)/model/engine_topview_v3.onnx"/>
   <arg name="model_bounds_arg" default="[0.00, -56.00, 0.00, -80.48, -112.00, -90.82, 80.48, -112.00, -90.82,80.48, 0.00, -90.82,-80.48, 0.00, -90.82,-80.48, -112.00, 90.82,80.48, -112.00, 90.82, 80.48, 0.00, 90.82,-80.48, 0.00, 90.82]"/>
+  <arg name="model_bounds_arg2" default="[90.1,0.0,154.8,89.9,0.0,137.6,91.3,0.0,34.2,94.4,0.0,19.4,70.8,0.0,80.4,70.9,0.0,104.3,152.8,45.6,126.8,152.5,46.8,47.9,6.4,47.0,137.6,5.7,47.7,59.3]"/>
   <!-- arg name="model_bounds_arg" default="[0.00, -0.056, 0.00, -0.08048, -0.112, -0.09082, 0.08048, -0.112, -0.09082,0.08048, 0.00, -0.09082,-0.08048, 0.00, -0.09082,-0.08048, -0.112, 0.09082,0.08048, -0.112, 0.09082, 0.08048, 0.00, 0.09082,-0.08048, 0.00, 0.09082]"/ -->
   <!-- arg name="model_bounds_arg" default="[-4.57, -10.50, -13.33, 5.54, -10.50, -13.33, 5.54, 0.00, -13.33, -4.57, 0.00, -13.33, -4.57, -10.50, 13.73, 5.54, -10.50, 13.73, 5.54, 0.00, 13.73, -4.57, 0.00, 13.73, 0.48, -5.25, 0.20]"/ -->
   <arg name="tracker_type_arg" default="pose"/>
@@ -41,6 +42,7 @@
     <param name="onnx_model_path" value="$(arg onnx_model_path_arg)"/>
     <param name="confidence" value="$(arg confidence_arg)"/>
     <param name="model_bounds" type="yaml" value="$(arg model_bounds_arg)"/>
+    <param name="model_bounds2" type="yaml" value="$(arg model_bounds_arg2)"/>
     <param name="tracker_type" value="$(arg tracker_type_arg)"/>
     <param name="mesh_scale" type="yaml" value="$(arg mesh_scale_arg)"/>
     <param name="winml_fake" value="$(arg winml_fake_arg)"/>
@@ -69,6 +71,23 @@
     <param name="checkerboard_square_size" value="0.025" type="double" />
   </node>
 
+  <node pkg="tuw_aruco" type="aruco_node" name="arMarkerAruco" output="screen">
+    <param name="show_debug_image" value="true"/>
+
+    <param name="marker_dictonary" value="ARUCO_MIP_16h3"/>
+    <param name="marker_size" value="0.03"/>
+
+    <param name="publish_tf" value="true"/>
+    <param name="publish_markers" value="true"/>
+    <param name="publish_fiducials" value="false"/>
+    <param name="pose_estimation_enabled" value="true"/>
+
+    <remap from="image" to="/cv_camera/image_raw"/>
+    <remap from="camera_info" to="/cv_camera/camera_info"/>
+
+    <remap from="markers" to="/markersAruco"/>
+  </node>
+
   <node pkg="k4a_ros_bridge" type="node" name="node"  if="$(arg use_kinect)">
     <param name="depth_enabled" type="bool" value="true" /> <!-- Enable or disable the depth camera -->
     <param name="depth_mode" type="string" value="WFOV_2X2BINNED" /> <!-- Set the depth camera mode, which affects FOV, depth range, and camera resolution. See K4A documentation for full details. Valid options: NFOV_UNBINNED, NFOV_2X2BINNED, WFOV_UNBINNED, WFOV_2X2BINNED -->
@@ -88,7 +107,7 @@
     <param name="publish_rate" value="1" />
   </node>
 
-  <node name="k4a_arm_support" pkg="k4a_arm_support" type="k4a_arm_support_node" if="$(arg use_support)">
+  <node name="k4a_arm_support" pkg="k4a_arm_support" type="k4a_arm_support_node" respawn="true" output="screen" if="$(arg use_support)">
     <param name="gripper_name" type="str" value="$(arg gripper_name)" />
     <param name="fake" value="false" if="$(arg use_winml)"/>
     <param name="fake" value="true" unless="$(arg use_winml)"/>
@@ -99,7 +118,7 @@
     type="Robotiq2FGripperStatusListener.py" output="screen"/ -->
 
   <node name="robotiq2FGripper" pkg="robotiq_2f_gripper_control"
-    type="Robotiq2FGripperRtuNode.py" args="$(arg device_name)" output="screen"/>
+    type="Robotiq2FGripperRtuNode.py" args="$(arg device_name)" respawn="true" output="screen"/>
 
   <node name="robotiq_2f_gripper_action_server" pkg="robotiq_2f_gripper_action_server"
     type="robotiq_2f_gripper_action_server_node" output="screen">
@@ -114,11 +133,18 @@
   </node>  
 
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" if="$(arg use_websocket)">
-    <arg name="address" value="10.137.185.21" />
+    <arg name="address" value="127.0.0.1" />
   </include>
   <include file="$(find rosbridge_server)/launch/rosbridge_tcp.launch" if="$(arg use_tcp)"/>
 
   <include file="$(find ur3_k4a-moveit_config)/launch/UR3_with_k4a_execution.launch" if="$(arg use_moveit)">
     <arg name="robot_ip" value="$(arg robot_ip)" />
   </include>
+
+  <node pkg="tf" type="static_transform_publisher" name="t0_broadcaster" args="-0.015 -0.015 0 0 0 0 t0 t0_c 100" />
+  <node pkg="tf" type="static_transform_publisher" name="t1_broadcaster" args="-0.015 -0.015 0 0 0 0 t1 t1_c 100" />
+  <node pkg="tf" type="static_transform_publisher" name="t2_broadcaster" args="-0.015 -0.015 0 0 0 0 t2 t2_c 100" />
+  <node pkg="tf" type="static_transform_publisher" name="t3_broadcaster" args="-0.015 -0.015 0 0 0 0 t3 t3_c 100" />
+  <node pkg="tf" type="static_transform_publisher" name="t4_broadcaster" args="-0.015 -0.015 0 0 0 0 t4 t4_c 100" />
+  <node pkg="tf" type="static_transform_publisher" name="t5_broadcaster" args="-0.015 -0.015 0 0 0 0 t5 t5_c 100" />
 </launch>

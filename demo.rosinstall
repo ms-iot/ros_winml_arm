@@ -33,9 +33,9 @@
     version: init_windows
 - git:
     local-name: winml_tracker
-    uri: https://github.com/ooeygui/winml_tracker
+    uri: https://github.com/ms-iot/winml_tracker
     version: pose_fix
 - git:
     local-name: tuw_marker_detection
-    uri: https://github.com/tuw-robotics/tuw_marker_detection
+    uri: https://github.com/seanyen/tuw_marker_detection
     version: melodic

@@ -160,7 +160,7 @@
                     </Ellipse>
                 </Grid>
             </Button>
-            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Scan" Grid.Row="1" Grid.Column="0" Margin="0,0,0,40"/>
+            <TextBlock Style="{StaticResource ROSComponentHeaderTextBlockStyle}" Text="Home" Grid.Row="1" Grid.Column="0" Margin="0,0,0,40"/>
 
             <Button x:Name="btnPickUp" Style="{StaticResource ClearButtonStyle}" Grid.Row="1" Grid.Column="1" Width="150" Height="150" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,40">
                 <Grid Width="150" Height="150">

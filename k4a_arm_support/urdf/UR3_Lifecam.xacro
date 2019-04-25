@@ -11,6 +11,70 @@
   <link name="winml_link"/>
   <link name="k4a_link_optical" />
 
+  <link name="wall1">
+      <visual>
+          <geometry>
+              <box size="1.0 0.05 1.0"/>
+          </geometry>
+          <material name="Green">
+          <color rgba="0.0 0.5 0.0 0.5"/>
+          </material>
+      </visual>
+      <collision>
+          <geometry>
+              <box size="1.0 0.05 1.0"/>
+          </geometry>
+      </collision>
+  </link>
+
+  <link name="wall2">
+      <visual>
+          <geometry>
+              <box size="1.0 0.05 1.0"/>
+          </geometry>
+          <material name="Green">
+          <color rgba="0.0 0.5 0.0 0.5"/>
+          </material>
+      </visual>
+      <collision>
+          <geometry>
+              <box size="1.0 0.05 1.0"/>
+          </geometry>
+      </collision>
+  </link>
+
+  <link name="wall3">
+      <visual>
+          <geometry>
+              <box size="1.0 1.0 0.05"/>
+          </geometry>
+          <material name="Green">
+          <color rgba="0.0 0.5 0.0 0.5"/>
+          </material>
+      </visual>
+      <collision>
+          <geometry>
+              <box size="1.0 1.0 0.05"/>
+          </geometry>
+      </collision>
+  </link>
+
+  <link name="wall4">
+      <visual>
+          <geometry>
+              <box size="0.05 1.0 1.0"/>
+          </geometry>
+          <material name="Green">
+          <color rgba="0.0 0.5 0.0 0.5"/>
+          </material>
+      </visual>
+      <collision>
+          <geometry>
+              <box size="0.05 1.0 1.0"/>
+          </geometry>
+      </collision>
+  </link>
+
   <link name="table">
       <visual>
           <geometry>
@@ -81,6 +145,30 @@
       <origin xyz="0 0 0.0" rpy="0 0 0"/>
   </joint>
 
+  <joint name="world_to_wall1" type="fixed">
+      <parent link="world"/>
+      <child link="wall1"/>
+      <origin xyz="0 0.3 0.5" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="world_to_wall2" type="fixed">
+      <parent link="world"/>
+      <child link="wall2"/>
+      <origin xyz="0 -0.3 0.5" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="world_to_wall3" type="fixed">
+      <parent link="world"/>
+      <child link="wall3"/>
+      <origin xyz="0 0 0.7" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="world_to_wall4" type="fixed">
+      <parent link="world"/>
+      <child link="wall4"/>
+      <origin xyz="0.3 0 0.5" rpy="0 0 0"/>
+  </joint>
+
   <joint name="ee_to_k_mount" type="fixed">
       <parent link="ee_link"/>
       <child link="k_mount"/>
@@ -96,7 +184,7 @@
   <joint name="table_to_robot_mount" type="fixed">
       <parent link="table"/>
       <child link="robot_mount"/>
-      <origin xyz="0 0 0.012" rpy="0 0 0"/>
+      <origin xyz="0 0 0.012" rpy="0 0 ${pi/2}"/>
   </joint>
 
   <joint name="robot_mount_to_robot" type="fixed">

@@ -380,7 +380,7 @@ Visualization Manager:
       Value: true
     - Class: rviz/Image
       Enabled: true
-      Image Topic: /tracked_objects/image
+      Image Topic: /aruco_node/image
       Max Value: 1
       Median window: 5
       Min Value: 0

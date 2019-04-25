@@ -20,6 +20,14 @@
     </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
     <group_state name="home" group="arm">
+        <joint name="shoulder_pan_joint" value="1.5684235095977783" />
+        <joint name="shoulder_lift_joint" value="-1.2342599073993128" />
+        <joint name="elbow_joint" value="0.1454930305480957" />
+        <joint name="wrist_1_joint" value="-0.520266358052389" />
+        <joint name="wrist_2_joint" value="-1.564850155507223" />
+        <joint name="wrist_3_joint" value="3.1343579292297363" />
+    </group_state>
+    <group_state name="standby" group="arm">
         <joint name="elbow_joint" value="0.5" />
         <joint name="shoulder_lift_joint" value="-1.5166" />
         <joint name="shoulder_pan_joint" value="1.5707" />
@@ -193,4 +201,12 @@
     <disable_collisions link1="wrist_1_link" link2="wrist_2_link" reason="Adjacent" />
     <disable_collisions link1="wrist_1_link" link2="wrist_3_link" reason="Never" />
     <disable_collisions link1="wrist_2_link" link2="wrist_3_link" reason="Adjacent" />
+    <disable_collisions link1="table" link2="wall1" reason="Adjacent" />
+    <disable_collisions link1="table" link2="wall2" reason="Adjacent" />
+    <disable_collisions link1="table" link2="wall4" reason="Adjacent" />
+    <disable_collisions link1="wall1" link2="wall3" reason="Adjacent" />
+    <disable_collisions link1="wall1" link2="wall4" reason="Adjacent" />
+    <disable_collisions link1="wall2" link2="wall3" reason="Adjacent" />
+    <disable_collisions link1="wall2" link2="wall4" reason="Adjacent" />
+    <disable_collisions link1="wall3" link2="wall4" reason="Adjacent" />
 </robot>

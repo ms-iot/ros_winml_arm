@@ -20,6 +20,7 @@
 #include <actionlib/client/terminal_state.h>
 #include <control_msgs/GripperCommandAction.h>
 #include <winml_msgs/DetectedObjectPose.h>
+#include <marker_msgs/MarkerDetection.h>
 
 using namespace std;
 using namespace winrt;
@@ -27,6 +28,7 @@ using namespace winrt;
 ros::Publisher grip_pub;
 ros::Subscriber gotoSub;
 ros::Subscriber detectedObjectSub;
+ros::Subscriber arucoDetectedObjectSub;
 tf::TransformListener* listener;
 
 moveit::planning_interface::MoveGroupInterface* move_group;
@@ -52,6 +54,9 @@ double correctionP = 0.0;
 double correctionY = M_PI / 2.0;
 
 geometry_msgs::PoseStamped lastGripPose;
+double zOffset = 0.28;
+
+geometry_msgs::PoseStamped lastPlacePose;
 
 void openGripper()
 {
@@ -65,7 +70,7 @@ void closeGripper()
 {
   control_msgs::GripperCommandGoal goal;
   goal.command.position = -0.017;
-  goal.command.max_effort = 30.0;
+  goal.command.max_effort = 50.0;
   ac->sendGoal(goal);
   ac->waitForResult(ros::Duration(30.0));
 }
@@ -102,8 +107,64 @@ void detectedObjectCallback(const winml_msgs::DetectedObjectPose::ConstPtr& msg)
         tf::poseStampedTFToMsg(grasp_tf_pose, msg);
 
         lastGripPose = msg;
+        zOffset = zEngineCenterSecond;
         grip_pub.publish(msg);
     }
+}
+
+void arucoDetectedObjectCallback(const marker_msgs::MarkerDetection::ConstPtr& msg)
+{
+    if (!listener->waitForTransform ("world", msg->header.frame_id, ros::Time(0), ros::Duration(.1)))
+    {
+        // not ready yet
+        return;
+    }
+
+    if (0 == msg->markers.size())
+    {
+        return;
+    }
+
+    char buffer[50] = {};
+    auto id = msg->markers[0].ids[0];
+    sprintf(buffer, "t%d_c", id);
+
+    if (!listener->waitForTransform ("world", buffer, ros::Time(0), ros::Duration(.1)))
+    {
+        // not ready yet
+        ROS_WARN("cannot find world to %s tranform.", buffer);
+        return;
+    }
+
+    tf::StampedTransform markerPose;
+    listener->lookupTransform("world", buffer, ros::Time(0), markerPose);
+
+    auto markerGripPose = markerPose;
+
+    // ignore pitch & roll.
+    double yaw, pitch, roll;
+    markerGripPose.getBasis().getRPY(roll, pitch, yaw);
+    markerGripPose.setRotation(tf::createQuaternionFromRPY(0.0, 0.0, yaw));
+
+    tf::Vector3 gripOffset(0.0, 0.0, 0.23);
+    markerGripPose.getOrigin() += gripOffset;
+
+    tf::Quaternion modelCorrection = tf::createQuaternionFromRPY(0.0, M_PI/2.0, 0.0);
+    auto gripRotationQ = markerGripPose * modelCorrection;
+    gripRotationQ.normalize();
+    markerGripPose.setRotation(gripRotationQ);
+
+    tf::Stamped<tf::Pose> grasp_tf_pose(markerGripPose, ros::Time::now(), "world");
+    {
+        geometry_msgs::PoseStamped msg;
+        tf::poseStampedTFToMsg(grasp_tf_pose, msg);
+
+        lastGripPose = msg;
+        zOffset = -0.04;
+        grip_pub.publish(msg);
+    }
+
+    return;
 }
 
 void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
@@ -118,14 +179,13 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
     else if (msg->data == 1)
     {
         ros::Duration diff = ros::Time::now() - lastGripPose.header.stamp;
-        if (diff > ros::Duration(30.0))
+        if (diff > ros::Duration(10.0))
         {
-            ROS_INFO_NAMED("k4a", "ignore grip pose than 30s old");
+            ROS_INFO_NAMED("k4a", "ignore grip pose than 10s old");
             return;
         }
 
-        auto gripPoseMsg = lastGripPose;
-
+        move_group->setPlanningTime(10.0);
         move_group->setPoseReferenceFrame("world");
         move_group->setGoalTolerance(.005);
 
@@ -136,39 +196,29 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
         move_group->setNamedTarget("home");
         move_group->move();
 
+        Sleep(500);
+
+        auto gripPoseMsg = lastGripPose;
+
         move_group->setStartStateToCurrentState();
         move_group->setPoseTarget(gripPoseMsg, "ee_link");
 
         moveit::planning_interface::MoveGroupInterface::Plan gripPlan;
 
-        bool planned = (move_group->plan(gripPlan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
+        bool planned = false;
+        planned = (move_group->plan(gripPlan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
         ROS_INFO_NAMED("k4a", "plan 1 (pose goal) %s", planned ? "" : "FAILED");
 
-#if 0
         if (!planned)
         {
-            // ends up in collision with self, so flip 180. If that doesn't work, bail.
-            // rotate the pose
-
-            tf::Quaternion rotateGrip = tf::createQuaternionFromRPY(0, 0, M_PI / 2.0);
-
-            currentGripPose.setRotation(currentGripPose.getRotation() * rotateGrip);
-
-            tf::poseTFToMsg(currentGripPose, gripPoseMsg);
-            move_group->setPoseTarget(gripPoseMsg, "ee_link");
-            planned = (move_group->plan(gripPlan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
-
-            ROS_INFO_NAMED("k4a", "plan 2 (pose goal) %s", planned ? "" : "FAILED");
-        }
-#endif
-
-        if (planned)
-        {
-            move_group->move();
+            return;
         }
 
-        gripPoseMsg.pose.position.z = zEngineCenterSecond;
+        ROS_INFO_STREAM("how many states: " << gripPlan.trajectory_.joint_trajectory.points.size());
+
+        move_group->execute(gripPlan);
+
+        gripPoseMsg.pose.position.z += zOffset;
 
         move_group->setStartStateToCurrentState();
         planned = move_group->setPoseTarget(gripPoseMsg, "ee_link");
@@ -178,54 +228,60 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
 
         if (planned)
         {
-            move_group->move();
+            move_group->execute(gripPlan);
             closeGripper();
 
             move_group->setStartStateToCurrentState();
             move_group->setNamedTarget("home");
             move_group->move();
+
+            lastPlacePose = gripPoseMsg;
+            lastPlacePose.header.stamp = ros::Time::now();
         }
     }
     else if (msg->data == 2)
     {
+        ros::Duration diff = ros::Time::now() - lastPlacePose.header.stamp;
+        if (diff > ros::Duration(30.0))
+        {
+            ROS_INFO_NAMED("k4a", "ignore place pose than 30s old");
+            return;
+        }
+
+        auto placePose = lastPlacePose;
+
+        move_group->setPlanningTime(20.0);
+        move_group->setPoseReferenceFrame("world");
+        move_group->setGoalTolerance(.005);
+
         move_group->stop();
 
         move_group->setStartStateToCurrentState();
-        move_group->setNamedTarget("place");
-        move_group->move();
+        move_group->setPoseTarget(placePose, "ee_link");
+
+        moveit::planning_interface::MoveGroupInterface::Plan placePlan;
+
+        bool planned = false;
+        planned = (move_group->plan(placePlan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        ROS_INFO_NAMED("k4a", "plan 1 (pose goal) %s", planned ? "" : "FAILED");
+
+        if (!planned)
+        {
+            return;
+        }
+
+        move_group->execute(placePlan);
         openGripper();
+
+        move_group->setStartStateToCurrentState();
+        move_group->setNamedTarget("home");
+        move_group->move();
         return;
     }
     else if (msg->data == 3)
     {
         // Auto Mode. Exercise for the reader
    
-        move_group->setNamedTarget("home");
-        move_group->move();
-        return;
-    }
-    else if (msg->data == 4)
-    {
-        move_group->stop();
-        openGripper();
-
-        move_group->setStartStateToCurrentState();
-        move_group->setNamedTarget("home");
-        move_group->move();
-
-        move_group->setStartStateToCurrentState();
-        move_group->setNamedTarget("scan1");
-        move_group->move();
-
-        move_group->setStartStateToCurrentState();
-        move_group->setNamedTarget("scan2");
-        move_group->move();
-
-        move_group->setStartStateToCurrentState();
-        move_group->setNamedTarget("scan3");
-        move_group->move();
-
-        move_group->setStartStateToCurrentState();
         move_group->setNamedTarget("home");
         move_group->move();
         return;
@@ -246,7 +302,7 @@ int main(int argc, char **argv)
 
     ros::NodeHandle nh;
     ros::NodeHandle nhPrivate("~");
-    ros::AsyncSpinner async_spinner (2);
+    ros::AsyncSpinner async_spinner (3);
     async_spinner.start();
 
     std::string gripper_name;
@@ -263,6 +319,7 @@ int main(int argc, char **argv)
 
     grip_pub = nh.advertise<geometry_msgs::PoseStamped>("grip_pose", 1);
     detectedObjectSub = nh.subscribe("detected_object", 1, detectedObjectCallback);
+    arucoDetectedObjectSub = nh.subscribe("markersAruco", 1, arucoDetectedObjectCallback);
     gotoSub = nh.subscribe("goto", 1, gotoCallback);
 
     if (enablePlanning)

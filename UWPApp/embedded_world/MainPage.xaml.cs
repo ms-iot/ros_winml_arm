@@ -135,7 +135,7 @@ namespace embedded_world
 
             // Todo refactor the async connector.
             rosSocket = new RosSocket(rosWebSocketProtocol);
-            imageSubId = rosSocket.Subscribe<sensor_msgs.Image>("/tracked_objects/image", SubscriptionHandler);
+            imageSubId = rosSocket.Subscribe<sensor_msgs.Image>("/aruco_node/image", SubscriptionHandler);
             logSubId = rosSocket.Subscribe<rosgraph.Log>("/rosout", LogSubscriptionHandler);
             trackedSubId = rosSocket.Subscribe<DetectedObjectPose>("/detected_object", DetectedSubscriptionHandler);
             commandPubId = rosSocket.Advertise<std_msgs.RosInt32>("/goto");
@@ -182,9 +182,8 @@ namespace embedded_world
         {
             if (rosSocket != null)
             {
-                std_msgs.RosInt32 command = new std_msgs.RosInt32(4);
+                std_msgs.RosInt32 command = new std_msgs.RosInt32(0);
                 rosSocket.Publish(commandPubId, command);
-                UpdateCurrentTask("Scanning Objects", "");
             }
         }
 

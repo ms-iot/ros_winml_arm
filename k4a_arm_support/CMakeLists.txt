@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   interactive_markers
   visualization_msgs
   winml_msgs
+  marker_msgs
   moveit_ros_planning_interface
 )
 include_directories(${catkin_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS})
