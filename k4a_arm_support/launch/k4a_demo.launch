@@ -69,7 +69,7 @@
     <param name="checkerboard_columns" value="8" type="int" />
     <param name="checkerboard_rows" value="6" type="int" />
     <param name="checkerboard_square_size" value="0.025" type="double" />
-    <param name="show_camera_image" value="false"/>
+    <param name="show_camera_image" value="false" type="bool"/>
   </node>
 
   <node pkg="tuw_aruco" type="aruco_node" name="arMarkerAruco" output="screen">
@@ -113,6 +113,9 @@
     <param name="fake" value="false" if="$(arg use_winml)"/>
     <param name="fake" value="true" unless="$(arg use_winml)"/>
     <param name="enablePlanning" value="$(arg use_moveit)"/>
+    <param name="aruco_grip_end_offset" value="-0.045" type="double" />
+    <param name="planning_time" value="10.0" type="double" />
+    <param name="goal_tolerance" value="0.005" type="double" />
   </node>
 
   <!-- node name="Robotiq2FGripperStatusListener" pkg="robotiq_2f_gripper_control"
