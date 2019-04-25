@@ -7,10 +7,10 @@
     local-name: cv_camera
     uri: https://github.com/ms-iot/cv_camera
     version: master
-- git:
-    local-name: mixedreality.ai.depthcamera.rosbridge
-    uri: https://microsoft.visualstudio.com/DefaultCollection/Analog/_git/mixedreality.ai.depthcamera.rosbridge
-    version: master
+#- git:
+#    local-name: mixedreality.ai.depthcamera.rosbridge
+#    uri: https://microsoft.visualstudio.com/DefaultCollection/Analog/_git/mixedreality.ai.depthcamera.rosbridge
+#    version: master
 - git:
     local-name: robotiq
     uri: https://github.com/ms-iot/robotiq
