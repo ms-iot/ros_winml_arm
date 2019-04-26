@@ -17,7 +17,7 @@
   <arg name="mesh_scale_arg" default="[0.001, 0.001, 0.001]"/>
   <arg name="winml_link_name_arg" default="winml2_link"/>
 
-  <arg name="robot_ip" default="10.0.0.103" />
+  <arg name="robot_ip" default="169.254.164.155" />
 
   <arg name="gripper_name" default="gripper" />
   <arg name="min_gap" default="-0.017" />
@@ -116,6 +116,9 @@
     <param name="aruco_grip_end_offset" value="-0.045" type="double" />
     <param name="planning_time" value="10.0" type="double" />
     <param name="goal_tolerance" value="0.005" type="double" />
+    <param name="planar_correct_roll" value="0.0" type="double" />
+    <param name="planar_correct_pitch" value="0.0" type="double" />
+    <param name="planar_correct_yaw" value="0.0" type="double" />
   </node>
 
   <!-- node name="Robotiq2FGripperStatusListener" pkg="robotiq_2f_gripper_control"

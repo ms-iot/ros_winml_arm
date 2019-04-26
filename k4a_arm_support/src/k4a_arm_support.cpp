@@ -54,6 +54,7 @@ double correctionP = 0.0;
 double correctionY = M_PI / 2.0;
 
 double aruco_grip_end_offset = -0.045;
+double place_end_offset = -0.005;
 
 geometry_msgs::PoseStamped lastGripPose;
 double zOffset = 0.28;
@@ -262,6 +263,7 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
 
         move_group->stop();
 
+        placePose.pose.position.z -= place_end_offset;
         move_group->setStartStateToCurrentState();
         move_group->setPoseTarget(placePose, "ee_link");
 
@@ -317,6 +319,14 @@ int main(int argc, char **argv)
     nhPrivate.param<double>("aruco_grip_end_offset", aruco_grip_end_offset, -0.045);
     nhPrivate.param<double>("planning_time", moveit_group_planning_time, 10.0);
     nhPrivate.param<double>("goal_tolerance", moveit_group_goal_tolerance, 0.005);
+    nhPrivate.param<double>("place_end_offset", place_end_offset, -0.005);
+
+    double planar_correct_roll = 0.0;
+    double planar_correct_pitch = 0.0;
+    double planar_correct_yaw = 0.0;
+    nhPrivate.param<double>("planar_correct_roll", planar_correct_roll, 0.0);
+    nhPrivate.param<double>("planar_correct_pitch", planar_correct_pitch, 0.0);
+    nhPrivate.param<double>("planar_correct_yaw", planar_correct_yaw, 0.0);
 
 
     // create the action client
@@ -354,14 +364,16 @@ int main(int argc, char **argv)
         try
         {
             listener->lookupTransform("world", "checkerboard", ros::Time(0), correction);
-            double yaw, pitch, roll;
-            correction.getBasis().getRPY(roll, pitch, yaw);
+            correction.getBasis().getRPY(planar_correct_roll, planar_correct_pitch, planar_correct_yaw);
             correction.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
-            correction.setRotation(tf::createQuaternionFromRPY(pitch, roll, 0.0));
+            ROS_INFO_STREAM_THROTTLE(5, "checkerboard correction: " << planar_correct_roll << "," << planar_correct_pitch << "," << planar_correct_yaw);
+            correction.setRotation(tf::createQuaternionFromRPY(-planar_correct_pitch, -planar_correct_roll, 0.0));
         }
         catch (tf::TransformException ex)
         {
             //
+            correction.setOrigin(tf::Vector3(0.0, 0.0, 0.0));
+            correction.setRotation(tf::createQuaternionFromRPY(-planar_correct_pitch, -planar_correct_roll, 0.0));
         }
         br.sendTransform(tf::StampedTransform(correction, ros::Time::now(), "winml_link", "winml2_link"));
         loop_rate.sleep();

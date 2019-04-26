@@ -152,7 +152,7 @@ namespace embedded_world
         {
             var ignore = CoreApplication.MainView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
-                Confidence = String.Format("Object not found");
+                Confidence = String.Format("");
                 NotifyPropertyChanged("Confidence");
             });
         }
