@@ -212,6 +212,8 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
 
         moveit::planning_interface::MoveGroupInterface::Plan gripPlan;
 
+        ROS_INFO_NAMED("k4a", "planning a path...");
+
         bool planned = false;
         planned = (move_group->plan(gripPlan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
         ROS_INFO_NAMED("k4a", "plan 1 (pose goal) %s", planned ? "" : "FAILED");
@@ -221,12 +223,11 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
             return;
         }
 
-        ROS_INFO_STREAM("how many states: " << gripPlan.trajectory_.joint_trajectory.points.size());
-
         move_group->execute(gripPlan);
 
         gripPoseMsg.pose.position.z += zOffset;
 
+        ROS_INFO_NAMED("k4a", "planning a path...");
         move_group->setStartStateToCurrentState();
         planned = move_group->setPoseTarget(gripPoseMsg, "ee_link");
         planned = (move_group->plan(gripPlan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
@@ -238,9 +239,11 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
             move_group->execute(gripPlan);
             closeGripper();
 
+            ROS_INFO_NAMED("k4a", "planning a path to home pose...");
             move_group->setStartStateToCurrentState();
             move_group->setNamedTarget("home");
-            move_group->move();
+            planned = (move_group->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+            ROS_INFO_NAMED("k4a", "path to home pose %s", planned ? "SUCCEEDED" : "FAILED");
 
             lastPlacePose = gripPoseMsg;
             lastPlacePose.header.stamp = ros::Time::now();
@@ -269,6 +272,7 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
 
         moveit::planning_interface::MoveGroupInterface::Plan placePlan;
 
+        ROS_INFO_NAMED("k4a", "planning a path...");
         bool planned = false;
         planned = (move_group->plan(placePlan) == moveit::planning_interface::MoveItErrorCode::SUCCESS);
         ROS_INFO_NAMED("k4a", "plan 1 (pose goal) %s", planned ? "" : "FAILED");
@@ -281,9 +285,11 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
         move_group->execute(placePlan);
         openGripper();
 
+        ROS_INFO_NAMED("k4a", "planning a path to home pose...");
         move_group->setStartStateToCurrentState();
         move_group->setNamedTarget("home");
-        move_group->move();
+        planned = (move_group->move() == moveit::planning_interface::MoveItErrorCode::SUCCESS);
+        ROS_INFO_NAMED("k4a", "path to home pose %s", planned ? "SUCCEEDED" : "FAILED");
         return;
     }
     else if (msg->data == 3)
