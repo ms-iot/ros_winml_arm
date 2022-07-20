@@ -1,12 +1,9 @@
 #define _SILENCE_ALL_CXX17_DEPRECATION_WARNINGS 1 // The C++ Standard doesn't provide equivalent non-deprecated functionality yet.
-#pragma comment(lib, "windowsapp")
+
 
 #include <ros/ros.h>
 #include <cmath>
 #include <visualization_msgs/MarkerArray.h>
-#include <vcruntime.h>
-#include <windows.h>
-#include <winrt/Windows.Foundation.h>
 #include <tf/LinearMath/Quaternion.h>
 #include <tf/transform_datatypes.h>
 #include <tf/transform_listener.h>
@@ -17,10 +14,9 @@
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/client/terminal_state.h>
 #include <control_msgs/GripperCommandAction.h>
-#include <winml_msgs/DetectedObjectPose.h>
+#include <ros_msft_onnx_msgs/DetectedObjectPose.h>
 
 using namespace std;
-using namespace winrt;
 
 ros::Publisher tracked_object_pub;
 ros::Publisher grip_pub;
@@ -145,7 +141,7 @@ void closeGripper()
   ac->waitForResult(ros::Duration(30.0));
 }
 
-void detectedObjectCallback(const winml_msgs::DetectedObjectPose::ConstPtr& msg)
+void detectedObjectCallback(const ros_msft_onnx_msgs::DetectedObjectPose::ConstPtr& msg)
 {
     if (!listener->waitForTransform ("world", msg->header.frame_id, ros::Time(0), ros::Duration(.1)))
     {
@@ -278,14 +274,6 @@ void gotoCallback(const std_msgs::Int32::ConstPtr& msg)
 
 int main(int argc, char **argv)
 {
-    /*
-    while (!IsDebuggerPresent())
-    {
-        Sleep(5);
-    }
-    */
-
-    winrt::init_apartment();
     ros::init(argc, argv, "k4a_arm_support");
 
     ros::NodeHandle nh;
@@ -297,13 +285,11 @@ int main(int argc, char **argv)
     lastSeen = ros::WallTime::now() - ros::WallDuration(60);	// last seen while ago
 
     std::string gripper_name;
-      nhPrivate.param<std::string>("gripper_name", gripper_name, "gripper");
+    nhPrivate.param<std::string>("gripper_name", gripper_name, "gripper");
     nhPrivate.param<bool>("enablePlanning", enablePlanning, true);
 
 
-    // create the action client
-      // true causes the client to spin its own thread
-      ac = new actionlib::SimpleActionClient<control_msgs::GripperCommandAction>(gripper_name, true);
+    ac = new actionlib::SimpleActionClient<control_msgs::GripperCommandAction>(gripper_name, true);
     ac->waitForServer(); //will wait for infinite time
 
     listener = new tf::TransformListener();
@@ -318,13 +304,6 @@ int main(int argc, char **argv)
         moveit::planning_interface::MoveGroupInterface::Options options("arm", "robot_description", nh);
         move_group = new moveit::planning_interface::MoveGroupInterface(options);
         geometry_msgs::PoseStamped current_pose = move_group->getCurrentPose();
-
-
-        /*
-        ros::Duration(5.0).sleep();
-        move_group->setNamedTarget("home");
-        move_group->move();
-        */
     }
 
     ros::waitForShutdown();
